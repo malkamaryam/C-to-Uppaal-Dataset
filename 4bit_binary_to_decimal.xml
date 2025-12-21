@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int binary = 1011;        // 4-bit binary number
+int decimalValue = 0;      // Result
+</declaration>
+	<template>
+		<name>BinaryToDecimal</name>
+		<location id="id0" x="0" y="0">
+			<name x="-25" y="-34">compute</name>
+		</location>
+		<location id="id1" x="867" y="0">
+			<name x="857" y="-30">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id2">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="-93" y="0">decimalValue = (binary % 10) + ((binary / 10) % 10) * 2 + ((binary / 100) % 10) * 4 + ((binary / 1000) % 10) * 8</label>
+		</transition>
+	</template>
+	<system>system BinaryToDecimal;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

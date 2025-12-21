@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int ch = 101;   // 'e'
+int result = -1;        //'a' = 97, 'e' = 101, 'i' = 105, 'o' = 111, 'u' = 117
+</declaration>
+	<template>
+		<name>VowelChecker</name>
+		<location id="id0" x="-170" y="-8">
+			<name x="-195" y="-42">start</name>
+		</location>
+		<location id="id1" x="204" y="-93">
+			<name x="178" y="-127">vowel</name>
+		</location>
+		<location id="id2" x="200" y="60">
+			<name x="161" y="68">consonant</name>
+		</location>
+		<location id="id3" x="603" y="0">
+			<name x="578" y="-34">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-314" y="-127">ch==97 || ch==101 || ch==105 || ch==111 || ch==117</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-340" y="34">!(ch==97 || ch==101 || ch==105 || ch==111 || ch==117)</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="365" y="-76">result = 1</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="365" y="34">result = 0</label>
+		</transition>
+	</template>
+	<system>system VowelChecker;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

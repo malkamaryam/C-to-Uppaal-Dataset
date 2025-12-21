@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int i = 0;
+int Sum = 0;
+</declaration>
+	<template>
+		<name>LoopExample</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">Start</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="190" y="-30">Check</name>
+		</location>
+		<location id="id2" x="400" y="-80">
+			<name x="390" y="-110">Even</name>
+		</location>
+		<location id="id3" x="400" y="80">
+			<name x="390" y="50">Odd</name>
+		</location>
+		<location id="id4" x="600" y="0">
+			<name x="590" y="-30">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="240" y="-70">i &lt; 5 &amp;&amp; i % 2 == 0</label>
+			<label kind="assignment" x="246" y="-119">Sum = Sum + i</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="144" y="102">i &lt; 5 &amp;&amp; i % 2 != 0</label>
+			<nail x="255" y="85"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="240" y="-40">i = i + 1</label>
+			<nail x="272" y="-102"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="240" y="40">i = i + 1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="340" y="-30">i &gt;= 5</label>
+		</transition>
+	</template>
+	<system>loopExample = LoopExample();
+system LoopExample;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

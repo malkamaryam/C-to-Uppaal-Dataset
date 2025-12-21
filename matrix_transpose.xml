@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+int rows = 3;
+int cols = 3;
+int i = 0;
+int j = 0;
+int matrix[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+int transpose[3][3];
+</declaration>
+	<template>
+		<name>MatrixTranspose</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">start</name>
+		</location>
+		<location id="id1" x="180" y="0">
+			<name x="144" y="8">outerLoop</name>
+		</location>
+		<location id="id2" x="178" y="-127">
+			<name x="195" y="-136">innerLoop</name>
+		</location>
+		<location id="id3" x="450" y="0">
+			<name x="430" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="229" y="-93">i &lt; rows</label>
+			<label kind="assignment" x="238" y="-76">j = 0</label>
+			<nail x="238" y="-68"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="144" y="-246">j &lt; cols</label>
+			<label kind="assignment" x="17" y="-229">transpose[j][i] = matrix[i][j], j = j + 1</label>
+			<nail x="132" y="-203"/>
+			<nail x="226" y="-203"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="93" y="-85">j == cols</label>
+			<label kind="assignment" x="93" y="-68">i = i + 1</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="272" y="-25">i == rows</label>
+		</transition>
+	</template>
+	<system>matrixTranspose = MatrixTranspose();
+system MatrixTranspose;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

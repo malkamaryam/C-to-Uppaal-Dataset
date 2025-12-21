@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int num = 12;       /* number to check */
+int i = 2;          /* divisor */
+int isPrime = 1;    /* 1 = true, 0 = false */
+</declaration>
+	<template>
+		<name>PrimeChecker</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">start</name>
+		</location>
+		<location id="id1" x="178" y="-59">
+			<name x="161" y="-51">loop</name>
+		</location>
+		<location id="id2" x="510" y="8">
+			<name x="490" y="-26">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="178" y="8">num &lt;= 1</label>
+			<label kind="assignment" x="161" y="25">isPrime = 0</label>
+		</transition>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="51" y="-59">num &gt; 1</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="212" y="-42">num % i == 0 &amp;&amp; isPrime == 1</label>
+			<label kind="assignment" x="255" y="-25">isPrime = 0</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-8" y="-170">num % i != 0 &amp;&amp; i * i &lt;= num &amp;&amp; isPrime == 1</label>
+			<label kind="assignment" x="136" y="-153">i = i + 1</label>
+			<nail x="110" y="-127"/>
+			<nail x="229" y="-127"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="229" y="-102">i * i &gt; num || isPrime == 0</label>
+			<nail x="340" y="-85"/>
+		</transition>
+	</template>
+	<system>primeChecker = PrimeChecker();
+system PrimeChecker;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

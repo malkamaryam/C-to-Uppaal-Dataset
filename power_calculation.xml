@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int a = 5;       // base
+int b = 3;       // exponent
+int i;       // loop counter
+int result;  // final result
+  </declaration>
+	<template>
+		<name>PowerCalculation</name>
+		<location id="id0" x="-51" y="0">
+			<name x="-61" y="-30">start</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="161" y="8">procedure</name>
+		</location>
+		<location id="id2" x="400" y="0">
+			<name x="390" y="-30">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="0" y="0">i = 1, result = 1</label>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="170" y="-102">i &lt;= b</label>
+			<label kind="assignment" x="76" y="-85">result = result * a, i = i + 1</label>
+			<nail x="119" y="-59"/>
+			<nail x="272" y="-59"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="280" y="-17">i &gt; b</label>
+		</transition>
+	</template>
+	<system>system PowerCalculation;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

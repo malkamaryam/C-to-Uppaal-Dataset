@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int n = 9;
+int a = 0;
+int b = 1;
+int temp;
+int count = 2;
+</declaration>
+	<template>
+		<name>Fibonacci</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">start</name>
+		</location>
+		<location id="id1" x="180" y="0">
+			<name x="161" y="8">loop</name>
+		</location>
+		<location id="id2" x="360" y="0">
+			<name x="348" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="144" y="-93">count &lt; n</label>
+			<label kind="assignment" x="-42" y="-76">temp = a + b, a = b, b = temp, count = count + 1</label>
+			<nail x="136" y="-51"/>
+			<nail x="221" y="-51"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="221" y="-17">count &gt;= n</label>
+		</transition>
+	</template>
+	<system>fibonacci = Fibonacci();
+system Fibonacci;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

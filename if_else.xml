@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int x = 5;</declaration>
+	<template>
+		<name>IfExample</name>
+		<location id="id0" x="0" y="0">
+			<name x="-15" y="-30">start</name>
+		</location>
+		<location id="id1" x="195" y="-68">
+			<name x="165" y="-98">then</name>
+		</location>
+		<location id="id2" x="195" y="59">
+			<name x="165" y="89">else</name>
+		</location>
+		<location id="id3" x="400" y="0">
+			<name x="390" y="-30">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="85" y="-68">x &gt; 3</label>
+			<label kind="assignment" x="85" y="-34">x = 10</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="85" y="8">!(x &gt; 3)</label>
+			<label kind="assignment" x="93" y="42">x = 0</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id3"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id3"/>
+		</transition>
+	</template>
+	<system>ifexample = IfExample();
+system IfExample;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

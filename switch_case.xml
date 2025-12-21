@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int day = 4;
+int code = 0; // 1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat,7=Sun,8=Invalid
+</declaration>
+	<template>
+		<name>SwitchCase</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">Start</name>
+		</location>
+		<location id="id1" x="250" y="0">
+			<name x="240" y="-30">Branch</name>
+		</location>
+		<location id="id2" x="501" y="-212">
+			<name x="491" y="-242">Mon</name>
+		</location>
+		<location id="id3" x="501" y="-136">
+			<name x="491" y="-166">Tue</name>
+		</location>
+		<location id="id4" x="501" y="-59">
+			<name x="491" y="-89">Wed</name>
+		</location>
+		<location id="id5" x="501" y="17">
+			<name x="491" y="-13">Thu</name>
+		</location>
+		<location id="id6" x="501" y="93">
+			<name x="491" y="63">Fri</name>
+		</location>
+		<location id="id7" x="501" y="170">
+			<name x="491" y="140">Sat</name>
+		</location>
+		<location id="id8" x="501" y="246">
+			<name x="491" y="216">Sun</name>
+		</location>
+		<location id="id9" x="501" y="314">
+			<name x="491" y="284">Invalid</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id10">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="340" y="-161">day == 1</label>
+			<label kind="assignment" x="340" y="-144">code = 1</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="365" y="-93">day == 2</label>
+			<label kind="assignment" x="365" y="-76">code = 2</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="357" y="-42">day == 3</label>
+			<label kind="assignment" x="357" y="-25">code = 3</label>
+		</transition>
+		<transition id="id14">
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="guard" x="365" y="0">day == 4</label>
+			<label kind="assignment" x="365" y="17">code = 4</label>
+		</transition>
+		<transition id="id15">
+			<source ref="id1"/>
+			<target ref="id6"/>
+			<label kind="guard" x="374" y="42">day == 5</label>
+			<label kind="assignment" x="374" y="59">code = 5</label>
+		</transition>
+		<transition id="id16">
+			<source ref="id1"/>
+			<target ref="id7"/>
+			<label kind="guard" x="382" y="93">day == 6</label>
+			<label kind="assignment" x="382" y="110">code = 6</label>
+		</transition>
+		<transition id="id17">
+			<source ref="id1"/>
+			<target ref="id8"/>
+			<label kind="guard" x="382" y="136">day == 7</label>
+			<label kind="assignment" x="382" y="153">code = 7</label>
+		</transition>
+		<transition id="id18">
+			<source ref="id1"/>
+			<target ref="id9"/>
+			<label kind="guard" x="238" y="187">day &lt; 1 || day &gt; 7</label>
+			<label kind="assignment" x="314" y="170">code = 8</label>
+		</transition>
+	</template>
+	<system>switchCase = SwitchCase();
+system SwitchCase;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

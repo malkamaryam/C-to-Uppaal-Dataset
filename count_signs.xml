@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int arr[7] = {3, -1, 0, 7, -5, 0, 4};
+int positive = 0;
+int negative = 0;
+int zero = 0;
+int i = 0;
+</declaration>
+	<template>
+		<name>CountSigns</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">Start</name>
+		</location>
+		<location id="id1" x="250" y="0">
+			<name x="229" y="8">Check</name>
+		</location>
+		<location id="id2" x="68" y="-161">
+			<name x="58" y="-191">Positive</name>
+		</location>
+		<location id="id3" x="255" y="-204">
+			<name x="245" y="-234">Negative</name>
+		</location>
+		<location id="id4" x="493" y="-153">
+			<name x="483" y="-183">Zero</name>
+		</location>
+		<location id="id5" x="603" y="0">
+			<name x="593" y="-30">Done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="85" y="-119">i &lt; 7 &amp;&amp; arr[i] &gt; 0</label>
+			<label kind="assignment" x="127" y="-102">positive++, i++</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="289" y="-170">i &lt; 7 &amp;&amp; arr[i] &lt; 0</label>
+			<label kind="assignment" x="306" y="-153">negative++, i++</label>
+			<nail x="323" y="-110"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="391" y="-76">i &lt; 7 &amp;&amp; arr[i] == 0</label>
+			<label kind="assignment" x="399" y="-59">zero++, i++</label>
+			<nail x="425" y="-25"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<nail x="110" y="-42"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id3"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id4"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id13">
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="guard" x="425" y="-17">i &gt;= 7</label>
+		</transition>
+	</template>
+	<system>countSigns = CountSigns();
+system CountSigns;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

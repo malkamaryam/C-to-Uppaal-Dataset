@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int num = 84;
+int n = 84;
+int factor = 2;
+</declaration>
+	<template>
+		<name>PrimeFactorization</name>
+		<location id="id0" x="-17" y="0">
+			<name x="-34" y="-34">start</name>
+		</location>
+		<location id="id1" x="180" y="0">
+			<name x="160" y="-34">loop</name>
+		</location>
+		<location id="id2" x="425" y="0">
+			<name x="405" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="85" y="51">n % factor == 0 &amp;&amp; n &gt; 1</label>
+			<label kind="assignment" x="127" y="68">n = n / factor</label>
+			<nail x="136" y="51"/>
+			<nail x="229" y="51"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="85" y="-85">n % factor != 0 &amp;&amp; n &gt; 1</label>
+			<label kind="assignment" x="110" y="-68">factor = factor + 1</label>
+			<nail x="136" y="-51"/>
+			<nail x="229" y="-51"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="297" y="-17">n == 1</label>
+		</transition>
+	</template>
+	<system>primeFactorization = PrimeFactorization();
+system PrimeFactorization;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

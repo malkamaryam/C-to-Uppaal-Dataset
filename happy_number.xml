@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int num = 19;
+int temp = 0;
+int digit = 0;
+int Sum = 0;
+int count = 0;
+int result = -1;
+</declaration>
+	<template>
+		<name>HappyNumber</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">outer</name>
+		</location>
+		<location id="id1" x="187" y="-93">
+			<name x="204" y="-110">inner</name>
+		</location>
+		<location id="id2" x="374" y="-59">
+			<name x="357" y="-93">check</name>
+		</location>
+		<location id="id3" x="600" y="0">
+			<name x="590" y="-30">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="8" y="-85">count &lt; 10</label>
+			<label kind="assignment" x="-68" y="-68">Sum = 0, temp = num</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="153" y="-238">temp &gt; 0</label>
+			<label kind="assignment" x="110" y="-221">digit = temp % 10,
+Sum = Sum + digit * digit,
+temp = temp / 10</label>
+			<nail x="131" y="-161"/>
+			<nail x="250" y="-161"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="255" y="-102">temp == 0</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="450" y="-76">Sum == 1</label>
+			<label kind="assignment" x="450" y="-59">result = 1</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="153" y="-68">Sum != 1</label>
+			<label kind="assignment" x="93" y="-51">num = Sum, count = count + 1</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="238" y="0">count &gt;= 10</label>
+			<label kind="assignment" x="238" y="17">result = 0</label>
+		</transition>
+	</template>
+	<system>system HappyNumber;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

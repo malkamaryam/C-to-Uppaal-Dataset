@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int arr[5] = {64,25,12,22,11};
+int i = 0;
+int j = 0;
+int min = 0;
+int temp = 0;
+</declaration>
+	<template>
+		<name>SelectionSort</name>
+		<location id="id0" x="0" y="0">
+			<name x="-59" y="-34">outer_check</name>
+		</location>
+		<location id="id1" x="212" y="-119">
+			<name x="170" y="-153">init_min</name>
+		</location>
+		<location id="id2" x="493" y="-221">
+			<name x="483" y="-251">inner_check</name>
+		</location>
+		<location id="id3" x="493" y="-68">
+			<name x="510" y="-76">compare</name>
+		</location>
+		<location id="id4" x="909" y="-68">
+			<name x="899" y="-98">swap</name>
+		</location>
+		<location id="id5" x="603" y="8">
+			<name x="593" y="-22">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="68" y="-85">i &lt; 4</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="255" y="-212">min = i, j = i + 1</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="535" y="-187">j &lt; 5</label>
+			<nail x="552" y="-144"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="306" y="-170">min = (arr[j] &lt; arr[min]) ? j : min,
+j = j + 1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="705" y="-170">j &gt;= 5</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="603" y="-119">temp = arr[min],
+arr[min] = arr[i],
+arr[i] = temp,
+i = i + 1</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="guard" x="297" y="8">i &gt;= 4</label>
+		</transition>
+	</template>
+	<system>system SelectionSort;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

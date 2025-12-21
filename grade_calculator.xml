@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int marks = 85;
+int grade = 0;
+</declaration>
+	<template>
+		<name>GradeCalculator</name>
+		<location id="id0" x="-110" y="-8">
+			<name x="-130" y="-28">start</name>
+		</location>
+		<location id="id1" x="195" y="-178">
+		</location>
+		<location id="id2" x="195" y="-102">
+		</location>
+		<location id="id3" x="195" y="-34">
+		</location>
+		<location id="id4" x="200" y="60">
+		</location>
+		<location id="id5" x="200" y="120">
+		</location>
+		<location id="id6" x="493" y="-8">
+			<name x="476" y="-42">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-17" y="-127">marks &gt;= 90</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-34" y="-68">marks &gt;= 80 &amp;&amp; marks &lt; 90</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-59" y="-25">marks &gt;= 70 &amp;&amp; marks &lt; 80</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-51" y="25">marks &gt;= 60 &amp;&amp; marks &lt; 70</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="guard" x="8" y="76">marks &lt; 60</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id1"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="306" y="-136">grade = 1</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id2"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="289" y="-85">grade = 2</label>
+		</transition>
+		<transition id="id14">
+			<source ref="id3"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="272" y="-51">grade = 3</label>
+		</transition>
+		<transition id="id15">
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="280" y="0">grade = 4</label>
+		</transition>
+		<transition id="id16">
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="306" y="68">grade = 5</label>
+		</transition>
+	</template>
+	<system>system GradeCalculator;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

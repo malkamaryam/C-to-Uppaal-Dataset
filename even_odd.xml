@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int nums[6] = {4,9,12,7,3,8};
+int i = 0;
+int even = 0;
+int odd = 0;
+  </declaration>
+	<template>
+		<name>EvenOddCounter</name>
+		<location id="id0" x="40" y="80">
+			<name x="30" y="50">Start</name>
+		</location>
+		<location id="id1" x="190" y="80">
+			<name x="180" y="50">Check</name>
+		</location>
+		<location id="id2" x="187" y="229">
+			<name x="170" y="238">Even</name>
+		</location>
+		<location id="id3" x="40" y="230">
+			<name x="25" y="238">Odd</name>
+		</location>
+		<location id="id4" x="340" y="80">
+			<name x="330" y="50">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="229" y="59">i &gt;= 6</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="221" y="161">i &lt; 6 &amp;&amp; nums[i] % 2 == 0</label>
+			<nail x="229" y="119"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-102" y="136">i &lt; 6 &amp;&amp; nums[i] % 2 != 0</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="144" y="127">even++, i++</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="59" y="221">odd++, i++</label>
+			<nail x="110" y="204"/>
+		</transition>
+	</template>
+	<system>evenOddCounter = EvenOddCounter();
+system EvenOddCounter;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int num = 8;
+int result = 0;  // 0=uninitialized, 1=Positive Even, 2=Positive Odd, 3=Negative, 4=Zero
+
+
+</declaration>
+	<template>
+		<name>NestedIfElse</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">start</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="136" y="8">positive_check</name>
+		</location>
+		<location id="id2" x="561" y="-195">
+			<name x="531" y="-225">positive_even</name>
+		</location>
+		<location id="id3" x="569" y="144">
+			<name x="518" y="110">positive_odd</name>
+		</location>
+		<location id="id4" x="586" y="-76">
+			<name x="552" y="-110">negative</name>
+		</location>
+		<location id="id5" x="697" y="0">
+			<name x="679" y="8">zero</name>
+		</location>
+		<location id="id6" x="1000" y="0">
+			<name x="986" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="246" y="-153">num &gt; 0 &amp;&amp; num % 2 == 0</label>
+			<label kind="assignment" x="374" y="-170">result = 1</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="229" y="93">num &gt; 0 &amp;&amp; num % 2 != 0</label>
+			<label kind="assignment" x="306" y="76">result = 2</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="416" y="-42">num &lt; 0</label>
+			<label kind="assignment" x="391" y="-76">result = 3</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="guard" x="501" y="-25">num == 0</label>
+			<label kind="assignment" x="493" y="0">result = 4</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id2"/>
+			<target ref="id6"/>
+		</transition>
+		<transition id="id13">
+			<source ref="id3"/>
+			<target ref="id6"/>
+		</transition>
+		<transition id="id14">
+			<source ref="id4"/>
+			<target ref="id6"/>
+		</transition>
+		<transition id="id15">
+			<source ref="id5"/>
+			<target ref="id6"/>
+		</transition>
+	</template>
+	<system>nestedIfElse = NestedIfElse();
+system nestedIfElse;
+</system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>Nested if-else completes</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; result == 2</formula>
+			<comment>Eventually result becomes Positive Odd (for num=7)</comment>
+		</query>
+		<query>
+			<formula>A[] (result == 1) imply (num &gt; 0 &amp;&amp; num % 2 == 0)</formula>
+			<comment>If result is Positive Even, then num must be positive and even</comment>
+		</query>
+	</queries>
+</nta>

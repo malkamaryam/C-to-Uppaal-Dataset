@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int values[6] = {3, 7, 2, 10, 5, 8};
+int i = 0;
+int total = 0;
+  </declaration>
+	<template>
+		<name>ProcessNumbers</name>
+		<location id="id0" x="-200" y="-80">
+			<name x="-210" y="-110">Start</name>
+		</location>
+		<location id="id1" x="0" y="-80">
+			<name x="-10" y="-110">Check</name>
+		</location>
+		<location id="id2" x="200" y="-160">
+			<name x="190" y="-190">Even</name>
+		</location>
+		<location id="id3" x="200" y="40">
+			<name x="190" y="10">Odd</name>
+		</location>
+		<location id="id4" x="400" y="-80">
+			<name x="391" y="-68">UpdateI</name>
+		</location>
+		<location id="id5" x="0" y="59">
+			<name x="-17" y="76">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-17" y="-127">i &gt;= 6</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-93" y="-42">total &gt; 12</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-17" y="-144">i &lt; 6 &amp;&amp; values[i] % 2 == 0</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="17" y="-25">i &lt; 6 &amp;&amp; values[i] % 2 != 0</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="280" y="-263">total = total + 1</label>
+			<nail x="382" y="-161"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="280" y="-246">total = total + 2</label>
+			<nail x="365" y="-144"/>
+		</transition>
+		<transition id="id13">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="280" y="-229">total = total + 3</label>
+			<nail x="357" y="-127"/>
+		</transition>
+		<transition id="id14">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="280" y="-212">total = total + 4</label>
+			<nail x="331" y="-110"/>
+		</transition>
+		<transition id="id15">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="280" y="-195">total = total + 5</label>
+			<nail x="306" y="-93"/>
+		</transition>
+		<transition id="id16">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="323" y="0">total = total - 1</label>
+			<nail x="314" y="-59"/>
+		</transition>
+		<transition id="id17">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="323" y="17">total = total - 2</label>
+		</transition>
+		<transition id="id18">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="323" y="34">total = total - 3</label>
+			<nail x="340" y="-8"/>
+		</transition>
+		<transition id="id19">
+			<source ref="id4"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="195" y="-102">i++</label>
+		</transition>
+	</template>
+	<system>processnumbers = ProcessNumbers();
+system ProcessNumbers;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int nums[5] = {5,3,12,9,1};
+int i = 0;
+int max = 0;
+</declaration>
+	<template>
+		<name>MaxFinder</name>
+		<location id="id0" x="-200" y="0">
+			<name x="-210" y="-30">Start</name>
+		</location>
+		<location id="id1" x="0" y="0">
+			<name x="-25" y="-42">Check</name>
+		</location>
+		<location id="id2" x="246" y="-102">
+			<name x="236" y="-132">Update</name>
+		</location>
+		<location id="id3" x="200" y="80">
+			<name x="190" y="50">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="85" y="17">i &gt;= 5</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="119" y="-51">i &lt; 5 &amp;&amp; nums[i] &gt; max</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="-17" y="-119">max = nums[i], i = i + 1</label>
+			<nail x="102" y="-85"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-127" y="-85">i &lt; 5 &amp;&amp; nums[i] &lt;= max</label>
+			<label kind="assignment" x="-59" y="8">i = i + 1</label>
+			<nail x="-51" y="-59"/>
+			<nail x="42" y="-59"/>
+		</transition>
+	</template>
+	<system>maxFinder = MaxFinder();
+system MaxFinder;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

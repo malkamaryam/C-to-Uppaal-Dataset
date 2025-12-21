@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int num = 12345;
+int Sum = 0;
+  </declaration>
+	<template>
+		<name>SumDigits</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">start</name>
+		</location>
+		<location id="id1" x="150" y="0">
+			<name x="136" y="8">loop</name>
+		</location>
+		<location id="id2" x="300" y="0">
+			<name x="283" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="119" y="-93">num &gt; 0</label>
+			<label kind="assignment" x="17" y="-76">Sum = Sum + num % 10, num = num / 10</label>
+			<nail x="102" y="-59"/>
+			<nail x="195" y="-59"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="187" y="0">num == 0</label>
+		</transition>
+	</template>
+	<system>sumDigits = SumDigits();
+system SumDigits;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

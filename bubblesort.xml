@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int a0 = 7;
+int a1 = 2;
+int a2 = 5;
+
+int temp = 0;
+int i = 0;
+</declaration>
+	<template>
+		<name>BubbleSort</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">Start</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="161" y="-42">Compare01</name>
+		</location>
+		<location id="id2" x="408" y="-68">
+			<name x="382" y="-102">Swap01</name>
+		</location>
+		<location id="id3" x="578" y="-59">
+			<name x="544" y="-93">Compare12</name>
+		</location>
+		<location id="id4" x="756" y="51">
+			<name x="729" y="68">Swap12</name>
+		</location>
+		<location id="id5" x="1003" y="0">
+			<name x="986" y="-34">Loop</name>
+		</location>
+		<location id="id6" x="1200" y="0">
+			<name x="1190" y="-30">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="272" y="-59">a0 &gt; a1</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="391" y="-34">a0 &lt;= a1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="306" y="-119">temp = a0, a0 = a1, a1 = temp</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="646" y="-34">a1 &gt; a2</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="782" y="-51">a1 &lt;= a2</label>
+			<nail x="901" y="-17"/>
+		</transition>
+		<transition id="id13">
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="850" y="34">temp = a1, a1 = a2, a2 = temp</label>
+		</transition>
+		<transition id="id14">
+			<source ref="id5"/>
+			<target ref="id1"/>
+			<label kind="guard" x="540" y="-30">i &lt; 1</label>
+			<label kind="assignment" x="535" y="0">i = i + 1</label>
+		</transition>
+		<transition id="id15">
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="1040" y="-30">i &gt;= 1</label>
+		</transition>
+	</template>
+	<system>bubbleSort = BubbleSort();
+system BubbleSort;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

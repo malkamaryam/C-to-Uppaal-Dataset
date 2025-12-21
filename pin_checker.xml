@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int storedPin = 1234;
+int pin = 1234;
+int auth = -1;
+</declaration>
+	<template>
+		<name>SimpleAuthentication</name>
+		<location id="id0" x="-68" y="0">
+			<name x="-93" y="-34">start</name>
+		</location>
+		<location id="id1" x="200" y="-50">
+			<name x="170" y="-85">success</name>
+		</location>
+		<location id="id2" x="200" y="50">
+			<name x="178" y="59">failure</name>
+		</location>
+		<location id="id3" x="459" y="0">
+			<name x="441" y="-34">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-17" y="-51">pin == storedPin</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-8" y="34">pin != storedPin</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="289" y="-51">auth = 1</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="289" y="34">auth = 0</label>
+		</transition>
+	</template>
+	<system>
+system SimpleAuthentication;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

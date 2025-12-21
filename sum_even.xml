@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int n = 10;
+int i = 1;
+int Sum = 0;
+</declaration>
+	<template>
+		<name>SumEven</name>
+		<location id="id0" x="0" y="0">
+			<name x="-25" y="-34">start</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="161" y="8">check</name>
+		</location>
+		<location id="id2" x="331" y="-161">
+			<name x="321" y="-191">add</name>
+		</location>
+		<location id="id3" x="391" y="136">
+			<name x="381" y="106">skip</name>
+		</location>
+		<location id="id4" x="467" y="0">
+			<name x="450" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="85" y="-170">i &lt;= n &amp;&amp; (i % 2) == 0</label>
+			<nail x="204" y="-127"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="42" y="85">i &lt;= n &amp;&amp; (i % 2) != 0</label>
+			<nail x="255" y="119"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="306" y="-25">i &gt; n</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="272" y="-85">Sum = Sum + i, i = i + 1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="289" y="42">i = i + 1</label>
+		</transition>
+	</template>
+	<system>sumEven = SumEven();
+system sumEven;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

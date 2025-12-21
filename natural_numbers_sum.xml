@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int n = 7;
+int i = 1;
+int Sum = 0;
+</declaration>
+	<template>
+		<name>SumNatural</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">start</name>
+		</location>
+		<location id="id1" x="150" y="0">
+			<name x="127" y="8">loop</name>
+		</location>
+		<location id="id2" x="300" y="0">
+			<name x="280" y="-34">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="119" y="-93">i &lt;= n</label>
+			<label kind="assignment" x="42" y="-110">Sum = Sum + i, i = i + 1</label>
+			<nail x="110" y="-68"/>
+			<nail x="187" y="-68"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="195" y="0">i &gt; n</label>
+		</transition>
+	</template>
+	<system>sumNatural = SumNatural();
+system SumNatural;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int count = 0;
+</declaration>
+	<template>
+		<name>CounterBreak</name>
+		<location id="id0" x="40" y="80">
+			<name x="25" y="93">Loop</name>
+		</location>
+		<location id="id1" x="190" y="80">
+			<name x="180" y="50">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id2">
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-17" y="-8">count &lt; 5</label>
+			<label kind="assignment" x="-8" y="8">count++</label>
+			<nail x="8" y="34"/>
+			<nail x="76" y="34"/>
+		</transition>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="68" y="59">count == 5</label>
+		</transition>
+	</template>
+	<system>counterBreak = CounterBreak();
+system CounterBreak;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

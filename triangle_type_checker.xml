@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+int a = 5;
+int b = 5;
+int c = 5;
+int type = -1;        //Not a triangle → type = 0
+                      //Equilateral → type = 1
+                      //Isosceles → type = 2
+                      //Scalene → type = 3
+</declaration>
+	<template>
+		<name>TriangleTypeChecker</name>
+		<location id="id0" x="-229" y="-8">
+			<name x="-254" y="-42">start</name>
+		</location>
+		<location id="id1" x="195" y="-170">
+			<name x="139" y="-203">not_triangle</name>
+		</location>
+		<location id="id2" x="195" y="-76">
+			<name x="139" y="-104">equilateral</name>
+		</location>
+		<location id="id3" x="195" y="17">
+			<name x="156" y="-15">isosceles</name>
+		</location>
+		<location id="id4" x="200" y="120">
+			<name x="170" y="136">scalene</name>
+		</location>
+		<location id="id5" x="544" y="0">
+			<name x="527" y="-34">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-221" y="-144">a + b &lt;= c || a + c &lt;= b || b + c &lt;= a</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-76" y="-93">a == b &amp;&amp; b == c</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-119" y="-8">a == b || b == c || a == c</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-161" y="68">a != b &amp;&amp; b != c &amp;&amp; a != c</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="331" y="-119">type = 0</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="314" y="-42">type = 1</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="314" y="8">type = 2</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="331" y="68">type = 3</label>
+		</transition>
+	</template>
+	<system>system TriangleTypeChecker;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int arr[5] = {5,2,4,6,1};
+int i = 1;
+int j = 0;
+int key = 0;
+</declaration>
+	<template>
+		<name>InsertionSort</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">outer_check</name>
+		</location>
+		<location id="id1" x="187" y="144">
+			<name x="153" y="153">set_key</name>
+		</location>
+		<location id="id2" x="399" y="-17">
+			<name x="389" y="-47">inner_check</name>
+		</location>
+		<location id="id3" x="646" y="-136">
+			<name x="636" y="-166">shift</name>
+		</location>
+		<location id="id4" x="187" y="-110">
+			<name x="161" y="-144">insert</name>
+		</location>
+		<location id="id5" x="833" y="0">
+			<name x="823" y="-30">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="51" y="68">i &lt; 5</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="289" y="59">key = arr[i], j = i - 1</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="382" y="-85">j &gt;= 0 &amp;&amp; arr[j] &gt; key</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="535" y="-59">arr[j+1] = arr[j], j = j - 1</label>
+			<nail x="544" y="-25"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="246" y="-102">j &lt; 0 || arr[j] &lt;= key</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="0" y="-76">arr[j+1] = key, i = i + 1</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="guard" x="620" y="-25">i &gt;= 5</label>
+		</transition>
+	</template>
+	<system>system InsertionSort;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

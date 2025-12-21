@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int i = 0;
+  </declaration>
+	<template>
+		<name>Count</name>
+		<location id="id0" x="8" y="0">
+			<name x="-2" y="-30">start</name>
+		</location>
+		<location id="id1" x="204" y="0">
+			<name x="157" y="-34">loop_check</name>
+		</location>
+		<location id="id2" x="399" y="0">
+			<name x="389" y="-30">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="119" y="59">i &lt; 3</label>
+			<label kind="assignment" x="212" y="34">i = i + 1</label>
+			<nail x="144" y="42"/>
+			<nail x="204" y="85"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="68" y="0">i = 0</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="280" y="-25">!(i &lt; 3)</label>
+		</transition>
+	</template>
+	<system>count = Count();
+system Count;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

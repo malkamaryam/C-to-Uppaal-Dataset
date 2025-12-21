@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+int a = 20;
+int b = 5;
+int result = 0;
+</declaration>
+	<template>
+		<name>Calculator</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">start</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="170" y="-34">addition</name>
+		</location>
+		<location id="id2" x="400" y="0">
+			<name x="357" y="-34">subtraction</name>
+		</location>
+		<location id="id3" x="600" y="0">
+			<name x="535" y="-34">multiplication</name>
+		</location>
+		<location id="id4" x="800" y="0">
+			<name x="756" y="-34">division</name>
+		</location>
+		<location id="id5" x="1000" y="0">
+			<name x="970" y="-30">modulus</name>
+		</location>
+		<location id="id6" x="1200" y="0">
+			<name x="1170" y="-30">end</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="40" y="0">result = 0</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="240" y="0">result = a + b</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="425" y="0">result = a - b</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="640" y="0">result = a * b</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="guard" x="875" y="-25">b != 0</label>
+			<label kind="assignment" x="840" y="0">result = a / b</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="1079" y="-25">b != 0</label>
+			<label kind="assignment" x="1040" y="0">result = a % b</label>
+		</transition>
+	</template>
+	<system>
+calc = Calculator();
+system calc;
+</system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>Calculator runs completely</comment>
+		</query>
+	</queries>
+</nta>

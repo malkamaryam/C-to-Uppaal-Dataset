@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+int arr[5] = {4,1,9,7,3};
+int target = 7;
+int i = 0;
+int index = -1;
+</declaration>
+	<template>
+		<name>LinearSearch</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="-34">Start</name>
+		</location>
+		<location id="id1" x="250" y="0">
+			<name x="229" y="8">Check</name>
+		</location>
+		<location id="id2" x="520" y="-60">
+			<name x="510" y="-90">Found</name>
+		</location>
+		<location id="id3" x="520" y="60">
+			<name x="493" y="76">NotFound</name>
+		</location>
+		<location id="id4" x="800" y="0">
+			<name x="782" y="-34">Done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="136" y="-76">i &lt; 5 &amp;&amp; arr[i] == target</label>
+			<label kind="assignment" x="340" y="-59">index = i</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="238" y="42">i &lt; 5 &amp;&amp; arr[i] != target</label>
+			<label kind="assignment" x="238" y="-59">i++</label>
+			<nail x="212" y="-42"/>
+			<nail x="289" y="-42"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="323" y="25">i &gt;= 5</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id4"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id4"/>
+		</transition>
+	</template>
+	<system>
+P_LinearSearch = LinearSearch();
+system P_LinearSearch;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

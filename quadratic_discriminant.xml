@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int a = 1;
+int b = 4;
+int c = 3;
+int D = 0;
+int result = 2;
+
+//Result encoding:
+//result = 1 → two real roots (D &gt; 0)
+//result = 0 → one real root (D == 0)
+//result = -1 → no real roots (D &lt; 0)</declaration>
+	<template>
+		<name>QuadraticDiscriminant</name>
+		<location id="id0" x="0" y="0">
+			<name x="-25" y="8">start</name>
+		</location>
+		<location id="id1" x="238" y="-102">
+		</location>
+		<location id="id2" x="246" y="0">
+		</location>
+		<location id="id3" x="255" y="102">
+		</location>
+		<location id="id4" x="510" y="0">
+			<name x="484" y="-34">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-68" y="-68">D = b*b - 4*a*c</label>
+			<nail x="-51" y="-42"/>
+			<nail x="42" y="-42"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="93" y="-76">D &gt; 0</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="110" y="-17">D == 0</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="136" y="34">D &lt; 0</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="323" y="-93">result = 1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="323" y="0">result = 0</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="348" y="59">result = -1</label>
+		</transition>
+	</template>
+	<system>system QuadraticDiscriminant;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

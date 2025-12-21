@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int num = 11;
+int i;
+int j;
+int Sum;
+int isPrime;
+int result;
+</declaration>
+	<template>
+		<name>SumOfPrimes</name>
+		<location id="id0" x="0" y="-34">
+			<name x="-20" y="-64">start</name>
+		</location>
+		<location id="id1" x="212" y="-34">
+			<name x="153" y="-68">check_i</name>
+		</location>
+		<location id="id2" x="417" y="-196">
+			<name x="377" y="-226">check_j</name>
+		</location>
+		<location id="id3" x="723" y="-204">
+			<name x="697" y="-238">add_sum</name>
+		</location>
+		<location id="id4" x="663" y="-34">
+			<name x="645" y="-68">done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="68" y="-34">i = 2,
+Sum = 0</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="263" y="-153">i &lt;= num</label>
+			<label kind="assignment" x="238" y="-93">j = 2,
+    isPrime = 1</label>
+			<nail x="382" y="-170"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="357" y="-298">j * j &lt;= i &amp;&amp; isPrime == 1</label>
+			<label kind="assignment" x="230" y="-332">isPrime = (i % j == 0) ? 0 : isPrime,
+    j = j + 1</label>
+			<nail x="340" y="-272"/>
+			<nail x="493" y="-272"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="459" y="-221">j * j &gt; i &amp;&amp; isPrime == 1</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="451" y="-187">Sum = Sum + i,
+    i = i + 1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="230" y="-213">isPrime == 0</label>
+			<label kind="assignment" x="247" y="-230">i = i + 1</label>
+			<nail x="281" y="-196"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="425" y="-34">i &gt; num</label>
+			<label kind="assignment" x="408" y="-17">result = Sum</label>
+		</transition>
+	</template>
+	<system>system SumOfPrimes;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

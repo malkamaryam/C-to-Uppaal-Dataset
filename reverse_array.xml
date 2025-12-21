@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>int arr[5] = {9,7,5,3,1};
+int i = 0;
+int j = 4;
+int temp = 0;
+</declaration>
+	<template>
+		<name>ReverseArray</name>
+		<location id="id0" x="0" y="0">
+			<name x="-10" y="-30">Start</name>
+		</location>
+		<location id="id1" x="250" y="0">
+			<name x="229" y="8">Check</name>
+		</location>
+		<location id="id2" x="246" y="-170">
+			<name x="229" y="-204">Swap</name>
+		</location>
+		<location id="id3" x="510" y="0">
+			<name x="500" y="-30">Done</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="314" y="-102">i &lt; j</label>
+			<nail x="314" y="-85"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="34" y="-153">temp = arr[i],
+        arr[i] = arr[j],
+        arr[j] = temp,
+        i++,
+        j--</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="348" y="-25">i &gt;= j</label>
+		</transition>
+	</template>
+	<system>reverseArray = ReverseArray();
+system reverseArray;
+</system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>
