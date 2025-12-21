@@ -1,0 +1,21 @@
+int[] a = {7, 2, 5};
+int i = 0;
+
+while (i < 2)
+{
+    if (a[0] > a[1])
+    {
+        int temp = a[0];
+        a[0] = a[1];
+        a[1] = temp;
+    }
+
+    if (a[1] > a[2])
+    {
+        int temp = a[1];
+        a[1] = a[2];
+        a[2] = temp;
+    }
+
+    i++;
+}

@@ -1,0 +1,25 @@
+using System;
+
+class QuadraticDiscriminant
+{
+    static void Main()
+    {
+        int a = 1, b = 4, c = 3;
+        int D = b * b - 4 * a * c;
+        int result;
+
+        if (D > 0)
+            result = 1;
+        else if (D == 0)
+            result = 0;
+        else
+            result = -1;
+
+        Console.WriteLine(result);
+    }
+}
+
+//Result encoding:
+//result = 1 → two real roots (D > 0)
+//result = 0 → one real root (D == 0)
+//result = -1 → no real roots (D < 0)

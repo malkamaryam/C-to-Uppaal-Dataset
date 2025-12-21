@@ -1,0 +1,11 @@
+int[] arr = {9, 4, 7, 2, 5};
+int min = arr[0];
+int i = 1;
+
+while (i < arr.Length)
+{
+    if (arr[i] < min)
+        min = arr[i];
+
+    i++;
+}

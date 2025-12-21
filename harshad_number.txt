@@ -1,0 +1,33 @@
+using System;
+
+class HarshadNumber
+{
+    static void Main()
+    {
+        int num = 18;      // input number
+        int temp;
+        int digit;
+        int sum = 0;
+        int result;
+
+        // initialization (matches UPPAAL init transition)
+        temp = num;
+        sum = 0;
+
+        // sum of digits
+        while (temp > 0)
+        {
+            digit = temp % 10;
+            sum = sum + digit;
+            temp = temp / 10;
+        }
+
+        // check harshad condition
+        if (sum != 0 && num % sum == 0)
+            result = 1;   // Harshad number
+        else
+            result = 0;   // Not a Harshad number
+
+        Console.WriteLine("Result = " + result);
+    }
+}

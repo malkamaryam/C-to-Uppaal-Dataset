@@ -1,0 +1,28 @@
+using System;
+
+class PowerCalculation
+{
+    static void Main()
+    {
+        // Input
+        Console.Write("Enter base (a): ");
+        int a = 5;
+        Console.Write("Enter exponent (b): ");
+        int b = 3;
+
+        // Initialization
+        int i = 1;
+        int result = 1; // a^0 = 1
+
+        // Processing: calculate a^b using loop
+        while (i <= b)
+        {
+            result = result * a;
+            i = i + 1;
+        }
+
+        // Output
+        Console.WriteLine("Result: " + result);
+    }
+}
+\

@@ -1,0 +1,17 @@
+using System;
+
+class VowelChecker
+{
+    static void Main()
+    {
+        char ch = 'e';
+        int result;
+
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u')
+            result = 1;
+        else
+            result = 0;
+
+        Console.WriteLine(result);
+    }
+}

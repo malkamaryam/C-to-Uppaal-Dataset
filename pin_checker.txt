@@ -1,0 +1,18 @@
+using System;
+
+class SimpleAuthentication
+{
+    static void Main()
+    {
+        int storedPin = 1234;
+        int pin = 1234;
+        int auth;
+
+        if (pin == storedPin)
+            auth = 1;
+        else
+            auth = 0;
+
+        Console.WriteLine(auth);
+    }
+}

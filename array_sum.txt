@@ -1,0 +1,9 @@
+int[] arr = {3, 5, 7, 2, 4};
+int sum = 0;
+int i = 0;
+
+while (i < arr.Length)
+{
+    sum = sum + arr[i];
+    i++;
+}

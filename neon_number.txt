@@ -1,0 +1,34 @@
+using System;
+
+class NeonNumber
+{
+    static void Main()
+    {
+        int num = 9;       // input number
+        int square;
+        int temp;
+        int digit;
+        int sum = 0;
+        int result;
+
+        // initialize
+        square = num * num;
+        temp = square;
+
+        // sum digits of square
+        while (temp > 0)
+        {
+            digit = temp % 10;
+            sum += digit;
+            temp /= 10;
+        }
+
+        // check neon condition
+        if (sum == num)
+            result = 1;
+        else
+            result = 0;
+
+        Console.WriteLine("Result = " + result);
+    }
+}

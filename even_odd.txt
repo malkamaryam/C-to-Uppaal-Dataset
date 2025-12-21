@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { 4, 9, 12, 7, 3, 8 };
+        int even = 0;
+        int odd = 0;
+
+        foreach (int n in numbers)
+        {
+            if (n % 2 == 0)
+                even++;
+            else
+                odd++;
+        }
+
+        Console.WriteLine("Even: " + even);
+        Console.WriteLine("Odd: " + odd);
+    }
+}

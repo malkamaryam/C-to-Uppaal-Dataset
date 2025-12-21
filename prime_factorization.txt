@@ -1,0 +1,17 @@
+int num = 84;
+int n = num;
+int factor = 2;
+
+// Factorization
+while(n > 1)
+{
+    if(n % factor == 0)
+    {
+        n /= factor;
+        // store factor somewhere
+    }
+    else
+    {
+        factor++;
+    }
+}

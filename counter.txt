@@ -1,0 +1,19 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        int count = 0;
+
+        while(true)
+        {
+            count++;
+
+            if (count == 5)
+                break;
+        }
+
+        Console.WriteLine(count);
+    }
+}

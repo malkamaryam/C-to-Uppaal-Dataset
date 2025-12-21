@@ -1,0 +1,17 @@
+using System;
+
+class LeapYear
+{
+    static void Main()
+    {
+        int year = 2024;
+        bool isLeap = false;
+
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+        {
+            isLeap = true;
+        }
+
+        Console.WriteLine("Is Leap Year: " + isLeap);
+    }
+}

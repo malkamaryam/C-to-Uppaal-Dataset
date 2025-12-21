@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static int ProcessNumbers(List<int> nums)
+    {
+        int total = 0;
+        Random random = new Random();
+
+        foreach (int n in nums)
+        {
+            if (n % 2 == 0)
+            {
+                total += random.Next(1, 6);  // 1 to 5
+            }
+            else
+            {
+                total -= random.Next(1, 4);  // 1 to 3
+            }
+
+            if (total > 12)
+            {
+                break;
+            }
+        }
+
+        return total;
+    }
+
+    static void Main()
+    {
+        List<int> values = new List<int> { 3, 7, 2, 10, 5, 8 };
+
+        int result = ProcessNumbers(values);
+
+        Console.WriteLine("Final result: " + result);
+    }
+}

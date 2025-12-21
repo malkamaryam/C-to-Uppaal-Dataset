@@ -1,0 +1,61 @@
+using System;
+
+class TicTacToe
+{
+    static void Main()
+    {
+        int[,] board = new int[3, 3]; // 3x3 board
+        int r = 0;  // current row
+        int c = 0;  // current column
+        int turn = 1; // 1 = Player 1, 2 = Player 2
+
+        // Initialize board to 0
+        for (r = 0; r < 3; r++)
+        {
+            for (c = 0; c < 3; c++)
+            {
+                board[r, c] = 0;
+            }
+        }
+
+        // Reset row and column for filling
+        r = 0;
+        c = 0;
+
+        // Fill the board row by row, alternating turns
+        while (r < 3)
+        {
+            if (c < 3)
+            {
+                if (turn == 1)
+                {
+                    board[r, c] = 1;
+                    turn = 2;
+                }
+                else if (turn == 2)
+                {
+                    board[r, c] = 2;
+                    turn = 1;
+                }
+                c++;
+            }
+            else
+            {
+                // Move to next row
+                r++;
+                c = 0;
+            }
+        }
+
+        // Output the board
+        Console.WriteLine("Tic-Tac-Toe Board:");
+        for (r = 0; r < 3; r++)
+        {
+            for (c = 0; c < 3; c++)
+            {
+                Console.Write(board[r, c] + " ");
+            }
+            Console.WriteLine();
+        }
+    }
+}

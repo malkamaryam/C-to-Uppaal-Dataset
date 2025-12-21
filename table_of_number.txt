@@ -1,0 +1,20 @@
+using System;
+
+class TableOfNumber
+{
+    static void Main()
+    {
+        // Input
+        int num = 12;
+        int i = 1;
+        int result = 0;  // store last product (UPPAAL-compatible)
+
+        // Processing: generate multiplication table up to 10
+        while (i <= 10)
+        {
+            result = num * i;   // last product
+            Console.WriteLine(num + " x " + i + " = " + result);
+            i = i + 1;
+        }
+    }
+}

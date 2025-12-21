@@ -1,0 +1,38 @@
+using System;
+
+class HappyNumber
+{
+    static void Main()
+    {
+        int num = 19;
+        int temp;
+        int digit;
+        int sum;
+        int count = 0;
+        int result = 0;
+
+        while (count < 10)
+        {
+            sum = 0;
+            temp = num;
+
+            while (temp > 0)
+            {
+                digit = temp % 10;
+                sum += digit * digit;
+                temp /= 10;
+            }
+
+            if (sum == 1)
+            {
+                result = 1;
+                break;
+            }
+
+            num = sum;
+            count++;
+        }
+
+        Console.WriteLine(result);
+    }
+}

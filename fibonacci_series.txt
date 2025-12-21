@@ -1,0 +1,12 @@
+int n = 9;
+int a = 0, b = 1, temp;
+int count = 2; // first two numbers already set
+
+// Fibonacci sequence
+while (count < n)
+{
+    temp = a + b;
+    a = b;
+    b = temp;
+    count++;
+}

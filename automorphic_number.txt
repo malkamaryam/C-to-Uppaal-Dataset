@@ -1,0 +1,33 @@
+using System;
+
+class AutomorphicNumber
+{
+    static void Main()
+    {
+        int num = 76;     // input number
+        int square;
+        int temp;
+        int power = 1;
+        int result;
+
+        // initialize (matches UPPAAL init transition)
+        square = num * num;
+        temp = num;
+        power = 1;
+
+        // count number of digits
+        while (temp > 0)
+        {
+            power *= 10;
+            temp /= 10;
+        }
+
+        // check automorphic condition
+        if (square % power == num)
+            result = 1;    // Automorphic
+        else
+            result = 0;    // Not automorphic
+
+        Console.WriteLine("Result = " + result);
+    }
+}

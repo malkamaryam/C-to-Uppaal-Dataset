@@ -1,0 +1,25 @@
+using System;
+
+class SumOfSquares
+{
+    static void Main()
+    {
+        // Input
+        Console.Write("Enter n: ");
+        int n = 8;
+
+        // Initialization
+        int i = 1;
+        int result = 0; // sum of squares
+
+        // Processing: sum of squares
+        while (i <= n)
+        {
+            result = result + i * i;
+            i = i + 1;
+        }
+
+        // Output
+        Console.WriteLine("Sum of squares = " + result);
+    }
+}
