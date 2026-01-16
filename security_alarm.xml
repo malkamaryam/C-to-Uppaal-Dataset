@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan alarm_arm, alarm_disarm, alarm_sensor_trip, alarm_confirm, alarm_false, alarm_silence, alarm_reset;
+  </declaration>
+	<template>
+		<name x="60" y="30">AlarmController</name>
+		<location id="id0" x="68" y="153">
+			<name x="30" y="164">Disarmed</name>
+		</location>
+		<location id="id1" x="289" y="59">
+			<name x="263" y="25">Armed</name>
+		</location>
+		<location id="id2" x="510" y="59">
+			<name x="485" y="25">Triggered</name>
+		</location>
+		<location id="id3" x="697" y="59">
+			<name x="663" y="25">Sounding</name>
+		</location>
+		<location id="id4" x="926" y="144">
+			<name x="896" y="155">Silenced</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="110" y="42">alarm_arm?</label>
+			<nail x="153" y="68"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="178" y="102">alarm_disarm?</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="314" y="59">alarm_sensor_trip?</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="535" y="59">alarm_confirm?</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="340" y="0">alarm_false?</label>
+			<nail x="391" y="17"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="790" y="76">alarm_silence?</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="416" y="153">alarm_reset?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="260">UserEnv</name>
+		<location id="id12" x="80" y="380">
+			<name x="34" y="391">U_Disarmed</name>
+		</location>
+		<location id="id13" x="289" y="297">
+			<name x="255" y="263">U_Armed</name>
+		</location>
+		<location id="id14" x="518" y="297">
+			<name x="467" y="263">U_Triggered</name>
+		</location>
+		<location id="id15" x="688" y="297">
+			<name x="646" y="263">U_Sounding</name>
+		</location>
+		<location id="id16" x="880" y="380">
+			<name x="841" y="391">U_Silenced</name>
+		</location>
+		<init ref="id12"/>
+		<transition id="id17">
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="187" y="331">alarm_arm!</label>
+		</transition>
+		<transition id="id18">
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="93" y="280">alarm_disarm!</label>
+			<nail x="153" y="297"/>
+		</transition>
+		<transition id="id19">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="314" y="229">alarm_sensor_trip!</label>
+			<nail x="399" y="246"/>
+		</transition>
+		<transition id="id20">
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="535" y="297">alarm_confirm!</label>
+		</transition>
+		<transition id="id21">
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="357" y="297">alarm_false!</label>
+		</transition>
+		<transition id="id22">
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="765" y="314">alarm_silence!</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id16"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="391" y="382">alarm_reset!</label>
+		</transition>
+	</template>
+	<system>
+system AlarmController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

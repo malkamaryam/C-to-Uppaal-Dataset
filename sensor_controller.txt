@@ -1,0 +1,127 @@
+using System;
+
+public class SensorControllerEquivalent
+{
+    public enum Act { SenseOn, SenseOff, CmdOn, CmdOff }
+
+    // ---------------- Sensor ----------------
+    public enum SensorState { OffDetected, OnDetected }
+
+    public class Sensor
+    {
+        public SensorState State { get; private set; } = SensorState.OffDetected;
+
+        // Sensor sends ! actions
+        public bool CanSend(Act a)
+        {
+            if (State == SensorState.OffDetected) return a == Act.SenseOn;
+            return a == Act.SenseOff; // OnDetected
+        }
+
+        public void Send(Act a)
+        {
+            if (!CanSend(a))
+                throw new InvalidOperationException($"Sensor cannot send {a} in {State}");
+
+            if (State == SensorState.OffDetected && a == Act.SenseOn) State = SensorState.OnDetected;
+            else if (State == SensorState.OnDetected && a == Act.SenseOff) State = SensorState.OffDetected;
+        }
+    }
+
+    // ---------------- Controller ----------------
+    public enum ControllerState { Waiting, ExpectOff, ExpectOn }
+
+    public class Controller
+    {
+        public ControllerState State { get; private set; } = ControllerState.Waiting;
+
+        // Controller receives ? actions (both sense_* and cmd_* in this model)
+        public bool CanReceive(Act a)
+        {
+            switch (State)
+            {
+                case ControllerState.Waiting:
+                    return a == Act.SenseOn || a == Act.SenseOff;
+
+                case ControllerState.ExpectOn:
+                    return a == Act.CmdOn;
+
+                case ControllerState.ExpectOff:
+                    return a == Act.CmdOff;
+
+                default:
+                    return false;
+            }
+        }
+
+        public void Receive(Act a)
+        {
+            if (!CanReceive(a))
+                throw new InvalidOperationException($"Controller cannot receive {a} in {State}");
+
+            if (State == ControllerState.Waiting && a == Act.SenseOn) State = ControllerState.ExpectOn;
+            else if (State == ControllerState.ExpectOn && a == Act.CmdOn) State = ControllerState.Waiting;
+
+            else if (State == ControllerState.Waiting && a == Act.SenseOff) State = ControllerState.ExpectOff;
+            else if (State == ControllerState.ExpectOff && a == Act.CmdOff) State = ControllerState.Waiting;
+        }
+    }
+
+    // ---------------- Actuator ----------------
+    public class Actuator
+    {
+        // Actuator sends cmd_* (matches UPPAAL Actuator template)
+        public bool CanSend(Act a) => a == Act.CmdOn || a == Act.CmdOff;
+
+        public void Send(Act a)
+        {
+            if (!CanSend(a))
+                throw new InvalidOperationException($"Actuator cannot send {a}");
+            // self-loop
+        }
+    }
+
+    // ---------------- Handshake ----------------
+    static bool TrySync(Sensor s, Controller c, Actuator a, Act act)
+    {
+        // Sense events: Sensor(!) -> Controller(?)
+        if ((act == Act.SenseOn || act == Act.SenseOff) && s.CanSend(act) && c.CanReceive(act))
+        {
+            s.Send(act);
+            c.Receive(act);
+            return true;
+        }
+
+        // Command events: Actuator(!) -> Controller(?)
+        if ((act == Act.CmdOn || act == Act.CmdOff) && a.CanSend(act) && c.CanReceive(act))
+        {
+            a.Send(act);
+            c.Receive(act);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static void Main()
+    {
+        var sensor = new Sensor();
+        var controller = new Controller();
+        var actuator = new Actuator();
+
+        Console.WriteLine($"Init: Sensor={sensor.State}, Controller={controller.State}");
+
+        // Typical cycle: Sensor detects ON -> Controller issues cmd_on -> Sensor detects OFF -> Controller issues cmd_off
+        TrySync(sensor, controller, actuator, Act.SenseOn);
+        Console.WriteLine($"After SenseOn: Sensor={sensor.State}, Controller={controller.State}");
+
+        TrySync(sensor, controller, actuator, Act.CmdOn);
+        Console.WriteLine($"After CmdOn: Sensor={sensor.State}, Controller={controller.State}");
+
+        TrySync(sensor, controller, actuator, Act.SenseOff);
+        Console.WriteLine($"After SenseOff: Sensor={sensor.State}, Controller={controller.State}");
+
+        TrySync(sensor, controller, actuator, Act.CmdOff);
+        Console.WriteLine($"After CmdOff: Sensor={sensor.State}, Controller={controller.State}");
+    }
+}

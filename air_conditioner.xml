@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan ac_power_on, ac_start_cooling, ac_stop_cooling, ac_power_off;
+  </declaration>
+	<template>
+		<name x="60" y="30">ACController</name>
+		<location id="id0" x="22" y="147">
+			<name x="8" y="161">Off</name>
+		</location>
+		<location id="id1" x="300" y="150">
+			<name x="280" y="161">Idle</name>
+		</location>
+		<location id="id2" x="595" y="153">
+			<name x="569" y="161">Cooling</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="102" y="68">ac_power_on?</label>
+			<nail x="153" y="85"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="382" y="68">ac_start_cooling?</label>
+			<nail x="450" y="85"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="382" y="153">ac_stop_cooling?</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="102" y="153">ac_power_off?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="260">UserEnv</name>
+		<location id="id7" x="17" y="382">
+			<name x="-8" y="399">U_Off</name>
+		</location>
+		<location id="id8" x="300" y="380">
+			<name x="272" y="348">U_Idle</name>
+		</location>
+		<location id="id9" x="586" y="382">
+			<name x="544" y="391">U_Cooling</name>
+		</location>
+		<init ref="id7"/>
+		<transition id="id10">
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="102" y="306">ac_power_on!</label>
+			<nail x="153" y="323"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="365" y="306">ac_start_cooling!</label>
+			<nail x="442" y="323"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="382" y="382">ac_stop_cooling!</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="102" y="382">ac_power_off!</label>
+		</transition>
+	</template>
+	<system>
+
+system ACController, UserEnv; 
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

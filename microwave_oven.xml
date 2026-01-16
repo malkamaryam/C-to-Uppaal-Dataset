@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan mw_power_on, mw_power_off, mw_cook_begin, mw_cook_done;
+  </declaration>
+	<template>
+		<name x="60" y="30">Controller</name>
+		<location id="id0" x="8" y="144">
+			<name x="-9" y="110">Off</name>
+		</location>
+		<location id="id1" x="260" y="150">
+			<name x="238" y="119">Ready</name>
+		</location>
+		<location id="id2" x="493" y="153">
+			<name x="467" y="119">Cooking</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="76" y="195">mw_power_on?</label>
+			<nail x="127" y="195"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="323" y="204">mw_cook_begin?</label>
+			<nail x="382" y="204"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="323" y="127">mw_cook_done?</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="76" y="127">mw_power_off?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="260">UserEnv</name>
+		<location id="id7" x="34" y="374">
+			<name x="17" y="340">U_Off</name>
+		</location>
+		<location id="id8" x="260" y="380">
+			<name x="238" y="348">U_Ready</name>
+		</location>
+		<location id="id9" x="476" y="382">
+			<name x="486" y="359">U_Cooking</name>
+		</location>
+		<init ref="id7"/>
+		<transition id="id10">
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="93" y="425">mw_power_on!</label>
+			<nail x="144" y="425"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="297" y="433">mw_cook_begin!</label>
+			<nail x="357" y="433"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="323" y="357">mw_cook_done!</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="93" y="357">mw_power_off!</label>
+		</transition>
+	</template>
+	<system>
+system Controller, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,135 @@
+using System;
+
+public enum Channel
+{
+    FpNozzleLift,    // fp_nozzle_lift
+    FpSelectGrade,   // fp_select_grade
+    FpAuthorize,     // fp_authorize
+    FpFlowBegin,     // fp_flow_begin
+    FpFlowStop,      // fp_flow_stop
+    FpNozzleReturn,  // fp_nozzle_return
+    FpCancel         // fp_cancel
+}
+
+public enum FuelPumpControllerState
+{
+    Idle,      // id60000
+    NozzleUp,  // id60001
+    GradeSel,  // id60002
+    Auth,      // id60003
+    Fueling    // id60004
+}
+
+public enum UserEnvState
+{
+    U_Idle,      // id61000
+    U_NozzleUp,  // id61001
+    U_GradeSel,  // id61002
+    U_Auth,      // id61003
+    U_Fueling    // id61004
+}
+
+public sealed class FuelPumpPaired
+{
+    // bounded 0/1 like UPPAAL int[0,1]
+    public int NozzleUp   { get; private set; } = 0;
+    public int Selected   { get; private set; } = 0;
+    public int Authorized { get; private set; } = 0;
+    public int Flowing    { get; private set; } = 0;
+
+    public FuelPumpControllerState Controller { get; private set; } = FuelPumpControllerState.Idle;
+    public UserEnvState User { get; private set; } = UserEnvState.U_Idle;
+
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    private bool ControllerCanReceive(FuelPumpControllerState s, Channel ch) => (s, ch) switch
+    {
+        (FuelPumpControllerState.Idle,     Channel.FpNozzleLift)   => NozzleUp == 0,
+        (FuelPumpControllerState.NozzleUp, Channel.FpSelectGrade)  => Selected == 0,
+        (FuelPumpControllerState.GradeSel, Channel.FpAuthorize)    => Authorized == 0,
+        (FuelPumpControllerState.Auth,     Channel.FpFlowBegin)    => NozzleUp == 1 && Selected == 1 && Authorized == 1 && Flowing == 0,
+        (FuelPumpControllerState.Fueling,  Channel.FpFlowStop)     => Flowing == 1,
+        (FuelPumpControllerState.Auth,     Channel.FpNozzleReturn) => NozzleUp == 1 && Flowing == 0,
+
+        (FuelPumpControllerState.NozzleUp, Channel.FpCancel)       => true,
+        (FuelPumpControllerState.GradeSel, Channel.FpCancel)       => true,
+        (FuelPumpControllerState.Auth,     Channel.FpCancel)       => Flowing == 0,
+        _ => false
+    };
+
+    private FuelPumpControllerState ControllerApplyReceive(FuelPumpControllerState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (FuelPumpControllerState.Idle, Channel.FpNozzleLift):
+                NozzleUp = 1; Selected = 0; Authorized = 0; Flowing = 0;
+                return FuelPumpControllerState.NozzleUp;
+
+            case (FuelPumpControllerState.NozzleUp, Channel.FpSelectGrade):
+                Selected = 1;
+                return FuelPumpControllerState.GradeSel;
+
+            case (FuelPumpControllerState.GradeSel, Channel.FpAuthorize):
+                Authorized = 1;
+                return FuelPumpControllerState.Auth;
+
+            case (FuelPumpControllerState.Auth, Channel.FpFlowBegin):
+                Flowing = 1;
+                return FuelPumpControllerState.Fueling;
+
+            case (FuelPumpControllerState.Fueling, Channel.FpFlowStop):
+                Flowing = 0;
+                return FuelPumpControllerState.Auth;
+
+            case (FuelPumpControllerState.Auth, Channel.FpNozzleReturn):
+                NozzleUp = 0; Selected = 0; Authorized = 0; Flowing = 0;
+                return FuelPumpControllerState.Idle;
+
+            case (FuelPumpControllerState.NozzleUp, Channel.FpCancel):
+            case (FuelPumpControllerState.GradeSel, Channel.FpCancel):
+            case (FuelPumpControllerState.Auth, Channel.FpCancel):
+                NozzleUp = 0; Selected = 0; Authorized = 0; Flowing = 0;
+                return FuelPumpControllerState.Idle;
+
+            default:
+                throw new InvalidOperationException($"Controller cannot receive {ch} in {s}.");
+        }
+    }
+
+    private bool UserCanSend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Idle,     Channel.FpNozzleLift)   => NozzleUp == 0,
+        (UserEnvState.U_NozzleUp, Channel.FpSelectGrade)  => Selected == 0,
+        (UserEnvState.U_GradeSel, Channel.FpAuthorize)    => Authorized == 0,
+        (UserEnvState.U_Auth,     Channel.FpFlowBegin)    => NozzleUp == 1 && Selected == 1 && Authorized == 1 && Flowing == 0,
+        (UserEnvState.U_Fueling,  Channel.FpFlowStop)     => Flowing == 1,
+        (UserEnvState.U_Auth,     Channel.FpNozzleReturn) => NozzleUp == 1 && Flowing == 0,
+
+        (UserEnvState.U_NozzleUp, Channel.FpCancel)       => true,
+        (UserEnvState.U_GradeSel, Channel.FpCancel)       => true,
+        (UserEnvState.U_Auth,     Channel.FpCancel)       => Flowing == 0,
+        _ => false
+    };
+
+    private UserEnvState UserApplySend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Idle,     Channel.FpNozzleLift)   => UserEnvState.U_NozzleUp,
+        (UserEnvState.U_NozzleUp, Channel.FpSelectGrade)  => UserEnvState.U_GradeSel,
+        (UserEnvState.U_GradeSel, Channel.FpAuthorize)    => UserEnvState.U_Auth,
+        (UserEnvState.U_Auth,     Channel.FpFlowBegin)    => UserEnvState.U_Fueling,
+        (UserEnvState.U_Fueling,  Channel.FpFlowStop)     => UserEnvState.U_Auth,
+        (UserEnvState.U_Auth,     Channel.FpNozzleReturn) => UserEnvState.U_Idle,
+        (UserEnvState.U_NozzleUp, Channel.FpCancel)       => UserEnvState.U_Idle,
+        (UserEnvState.U_GradeSel, Channel.FpCancel)       => UserEnvState.U_Idle,
+        (UserEnvState.U_Auth,     Channel.FpCancel)       => UserEnvState.U_Idle,
+        _ => throw new InvalidOperationException($"User cannot send {ch} in {s}.")
+    };
+}

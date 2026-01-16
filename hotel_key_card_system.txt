@@ -1,0 +1,159 @@
+using System;
+
+public enum Channel
+{
+    HkCardInsert,   // hk_card_insert
+    HkCardRead,     // hk_card_read
+    HkCardValid,    // hk_card_valid
+    HkCardInvalid,  // hk_card_invalid
+    HkDoorOpen,     // hk_door_open
+    HkDoorClose,    // hk_door_close
+    HkReset         // hk_reset
+}
+
+public enum ControllerState
+{
+    Locked,        // id30000
+    CardInserted,  // id30001
+    Checking,      // id30002
+    Unlocked,      // id30003
+    DoorOpen,      // id30004
+    Denied         // id30005
+}
+
+public enum UserState
+{
+    U_Locked,       // id31000
+    U_CardInserted, // id31001
+    U_Checking,     // id31002
+    U_Unlocked,     // id31003
+    U_DoorOpen,     // id31004
+    U_Denied        // id31005
+}
+
+public sealed class HotelKeyCardWithGuardsPaired
+{
+    private const int MAX_ATTEMPTS = 2;
+
+    public int Attempts { get; private set; } = 0;
+
+    public ControllerState Controller { get; private set; } = ControllerState.Locked;
+    public UserState User { get; private set; } = UserState.U_Locked;
+
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        // Apply both sides atomically (single-threaded)
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // ---------------- Controller ( ? ) ----------------
+    private bool ControllerCanReceive(ControllerState s, Channel ch) => (s, ch) switch
+    {
+        (ControllerState.Locked,       Channel.HkCardInsert)  => true,
+        (ControllerState.CardInserted, Channel.HkCardRead)    => true,
+        (ControllerState.Checking,     Channel.HkCardValid)   => true,
+
+        // Guard split: invalid can mean retry or lockout depending on Attempts
+        (ControllerState.Checking,     Channel.HkCardInvalid) => true,
+
+        (ControllerState.Unlocked,     Channel.HkDoorOpen)    => true,
+        (ControllerState.DoorOpen,     Channel.HkDoorClose)   => true,
+        (ControllerState.Denied,       Channel.HkReset)       => true,
+        _ => false
+    };
+
+    private ControllerState ControllerApplyReceive(ControllerState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (ControllerState.Locked, Channel.HkCardInsert):
+                Attempts = 0; // assignment
+                return ControllerState.CardInserted;
+
+            case (ControllerState.CardInserted, Channel.HkCardRead):
+                return ControllerState.Checking;
+
+            case (ControllerState.Checking, Channel.HkCardValid):
+                Attempts = 0; // assignment
+                return ControllerState.Unlocked;
+
+            case (ControllerState.Checking, Channel.HkCardInvalid):
+                // Guards from XML:
+                // retry if Attempts < MAX_ATTEMPTS-1 else Denied
+                if (Attempts < MAX_ATTEMPTS - 1)
+                {
+                    Attempts = Attempts + 1; // assignment
+                    return ControllerState.CardInserted;
+                }
+                return ControllerState.Denied;
+
+            case (ControllerState.Unlocked, Channel.HkDoorOpen):
+                return ControllerState.DoorOpen;
+
+            case (ControllerState.DoorOpen, Channel.HkDoorClose):
+                return ControllerState.Locked;
+
+            case (ControllerState.Denied, Channel.HkReset):
+                Attempts = 0; // assignment
+                return ControllerState.Locked;
+
+            default:
+                throw new InvalidOperationException($"Controller cannot receive {ch} in {s}.");
+        }
+    }
+
+    // ---------------- UserEnv ( ! ) ----------------
+    private bool UserCanSend(UserState s, Channel ch) => (s, ch) switch
+    {
+        (UserState.U_Locked,       Channel.HkCardInsert)  => true,
+        (UserState.U_CardInserted, Channel.HkCardRead)    => true,
+        (UserState.U_Checking,     Channel.HkCardValid)   => true,
+
+        // Guard split mirrors XML guards:
+        (UserState.U_Checking,     Channel.HkCardInvalid) => true,
+
+        (UserState.U_Unlocked,     Channel.HkDoorOpen)    => true,
+        (UserState.U_DoorOpen,     Channel.HkDoorClose)   => true,
+        (UserState.U_Denied,       Channel.HkReset)       => true,
+        _ => false
+    };
+
+    private UserState UserApplySend(UserState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (UserState.U_Locked, Channel.HkCardInsert):
+                return UserState.U_CardInserted;
+
+            case (UserState.U_CardInserted, Channel.HkCardRead):
+                return UserState.U_Checking;
+
+            case (UserState.U_Checking, Channel.HkCardValid):
+                return UserState.U_Unlocked;
+
+            case (UserState.U_Checking, Channel.HkCardInvalid):
+                // Guards from XML:
+                // retry if Attempts < MAX_ATTEMPTS-1 else Denied
+                if (Attempts < MAX_ATTEMPTS - 1)
+                    return UserState.U_CardInserted;
+                return UserState.U_Denied;
+
+            case (UserState.U_Unlocked, Channel.HkDoorOpen):
+                return UserState.U_DoorOpen;
+
+            case (UserState.U_DoorOpen, Channel.HkDoorClose):
+                return UserState.U_Locked;
+
+            case (UserState.U_Denied, Channel.HkReset):
+                return UserState.U_Locked;
+
+            default:
+                throw new InvalidOperationException($"User cannot send {ch} in {s}.");
+        }
+    }
+}

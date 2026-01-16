@@ -1,0 +1,110 @@
+using System;
+
+public enum Channel
+{
+    MwPowerOn,    // UPPAAL: mw_power_on
+    MwPowerOff,   // UPPAAL: mw_power_off
+    MwCookBegin,  // UPPAAL: mw_cook_begin
+    MwCookDone    // UPPAAL: mw_cook_done
+}
+
+public enum ControllerState
+{
+    Off,     // UPPAAL Controller: id5000 (Off)
+    Ready,   // UPPAAL Controller: id5001 (Ready)
+    Cooking  // UPPAAL Controller: id5002 (Cooking)
+}
+
+public enum UserState
+{
+    U_Off,      // UPPAAL UserEnv: id6000 (U_Off)
+    U_Ready,    // UPPAAL UserEnv: id6001 (U_Ready)
+    U_Cooking   // UPPAAL UserEnv: id6002 (U_Cooking)
+}
+
+public sealed class MicrowaveSimplePaired
+{
+    public ControllerState Controller { get; private set; } = ControllerState.Off;
+    public UserState User { get; private set; } = UserState.U_Off;
+
+    // Explicit handshake: action happens ONLY if sender can send AND receiver can receive.
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        // Apply both sides atomically (single-threaded).
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // ---------------- Controller (sync '?') ----------------
+    private static bool ControllerCanReceive(ControllerState s, Channel ch) => (s, ch) switch
+    {
+        // Off --mw_power_on?--> Ready
+        (ControllerState.Off,     Channel.MwPowerOn)   => true,
+
+        // Ready --mw_cook_begin?--> Cooking
+        (ControllerState.Ready,   Channel.MwCookBegin) => true,
+
+        // Cooking --mw_cook_done?--> Ready
+        (ControllerState.Cooking, Channel.MwCookDone)  => true,
+
+        // Ready --mw_power_off?--> Off
+        (ControllerState.Ready,   Channel.MwPowerOff)  => true,
+
+        _ => false
+    };
+
+    private static ControllerState ControllerApplyReceive(ControllerState s, Channel ch) => (s, ch) switch
+    {
+        (ControllerState.Off,     Channel.MwPowerOn)   => ControllerState.Ready,
+        (ControllerState.Ready,   Channel.MwCookBegin) => ControllerState.Cooking,
+        (ControllerState.Cooking, Channel.MwCookDone)  => ControllerState.Ready,
+        (ControllerState.Ready,   Channel.MwPowerOff)  => ControllerState.Off,
+        _ => throw new InvalidOperationException($"Controller cannot receive {ch} in state {s}.")
+    };
+
+    // ---------------- UserEnv (sync '!') ----------------
+    private static bool UserCanSend(UserState s, Channel ch) => (s, ch) switch
+    {
+        // U_Off --mw_power_on!--> U_Ready
+        (UserState.U_Off,     Channel.MwPowerOn)   => true,
+
+        // U_Ready --mw_cook_begin!--> U_Cooking
+        (UserState.U_Ready,   Channel.MwCookBegin) => true,
+
+        // U_Cooking --mw_cook_done!--> U_Ready
+        (UserState.U_Cooking, Channel.MwCookDone)  => true,
+
+        // U_Ready --mw_power_off!--> U_Off
+        (UserState.U_Ready,   Channel.MwPowerOff)  => true,
+
+        _ => false
+    };
+
+    private static UserState UserApplySend(UserState s, Channel ch) => (s, ch) switch
+    {
+        (UserState.U_Off,     Channel.MwPowerOn)   => UserState.U_Ready,
+        (UserState.U_Ready,   Channel.MwCookBegin) => UserState.U_Cooking,
+        (UserState.U_Cooking, Channel.MwCookDone)  => UserState.U_Ready,
+        (UserState.U_Ready,   Channel.MwPowerOff)  => UserState.U_Off,
+        _ => throw new InvalidOperationException($"User cannot send {ch} in state {s}.")
+    };
+
+    public static void Main()
+    {
+        var m = new MicrowaveSimplePaired();
+
+        // This trace is valid in the XML:
+        // mw_power_on -> mw_cook_begin -> mw_cook_done -> mw_power_off
+        if (!m.TryHandshake(Channel.MwPowerOn))   throw new Exception("Failed: MwPowerOn");
+        if (!m.TryHandshake(Channel.MwCookBegin)) throw new Exception("Failed: MwCookBegin");
+        if (!m.TryHandshake(Channel.MwCookDone))  throw new Exception("Failed: MwCookDone");
+        if (!m.TryHandshake(Channel.MwPowerOff))  throw new Exception("Failed: MwPowerOff");
+
+        if (m.Controller != ControllerState.Off || m.User != UserState.U_Off)
+            throw new Exception($"Unexpected final: Controller={m.Controller}, User={m.User}");
+    }
+}

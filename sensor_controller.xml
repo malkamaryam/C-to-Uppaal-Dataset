@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan sense_on;
+chan sense_off;
+chan cmd_on;
+chan cmd_off;
+</declaration>
+	<template>
+		<name x="5" y="5">Sensor</name>
+		<location id="id0" x="0" y="0">
+			<name x="-42" y="8">OffDetected</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="161" y="8">OnDetected</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id2">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="59" y="-68">sense_on!</label>
+			<nail x="102" y="-51"/>
+		</transition>
+		<transition id="id3">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="59" y="0">sense_off!</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Controller</name>
+		<location id="id4" x="0" y="200">
+			<name x="-25" y="212">Waiting</name>
+		</location>
+		<location id="id5" x="0" y="25">
+			<name x="-34" y="-9">ExpectOff</name>
+		</location>
+		<location id="id6" x="400" y="200">
+			<name x="365" y="212">ExpectOn</name>
+		</location>
+		<init ref="id4"/>
+		<transition id="id7">
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="195" y="127">sense_on?</label>
+			<nail x="187" y="144"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id6"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="161" y="195">cmd_on?</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-93" y="93">sense_off?</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="59" y="85">cmd_off?</label>
+			<nail x="59" y="102"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Actuator</name>
+		<location id="id11" x="0" y="360">
+			<name x="8" y="365">Any</name>
+		</location>
+		<init ref="id11"/>
+		<transition id="id12">
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-25" y="306">cmd_on!</label>
+			<nail x="-34" y="323"/>
+			<nail x="34" y="323"/>
+		</transition>
+		<transition id="id13">
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-110" y="374">cmd_off!</label>
+			<nail x="-51" y="357"/>
+			<nail x="-25" y="408"/>
+		</transition>
+	</template>
+	<system>
+system Sensor, Controller, Actuator;
+</system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>No deadlock (Sensor produces sense_*, Actuator consumes cmd_*).</comment>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan book_scan, member_check, member_valid, member_invalid, issue_book, reset;
+  </declaration>
+	<template>
+		<name x="60" y="30">LibraryController</name>
+		<location id="id0" x="80" y="150">
+			<name x="59" y="161">Idle</name>
+		</location>
+		<location id="id1" x="272" y="93">
+			<name x="238" y="102">BookScanned</name>
+		</location>
+		<location id="id2" x="433" y="34">
+			<name x="382" y="0">CheckingMember</name>
+		</location>
+		<location id="id3" x="620" y="34">
+			<name x="586" y="0">Verified</name>
+		</location>
+		<location id="id4" x="204" y="34">
+			<name x="178" y="0">Rejected</name>
+		</location>
+		<location id="id5" x="800" y="150">
+			<name x="773" y="161">Issued</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="144" y="93">book_scan?</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="340" y="68">member_check?</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="459" y="34">member_valid?</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="255" y="17">member_invalid?</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="705" y="68">issue_book?</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="93" y="68">reset?</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="484" y="153">reset?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="300">UserEnv</name>
+		<location id="id13" x="80" y="420">
+			<name x="59" y="433">U_Idle</name>
+		</location>
+		<location id="id14" x="255" y="348">
+			<name x="229" y="357">U_BookScanned</name>
+		</location>
+		<location id="id15" x="450" y="289">
+			<name x="408" y="255">U_Checking</name>
+		</location>
+		<location id="id16" x="637" y="289">
+			<name x="603" y="255">U_Valid</name>
+		</location>
+		<location id="id17" x="204" y="289">
+			<name x="161" y="255">U_Invalid</name>
+		</location>
+		<location id="id18" x="800" y="420">
+			<name x="765" y="433">U_Issued</name>
+		</location>
+		<init ref="id13"/>
+		<transition id="id19">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="153" y="391">book_scan!</label>
+		</transition>
+		<transition id="id20">
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="323" y="323">member_check!</label>
+		</transition>
+		<transition id="id21">
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="520" y="330">member_valid!</label>
+		</transition>
+		<transition id="id22">
+			<source ref="id15"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="255" y="272">member_invalid!</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id16"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="714" y="331">issue_book!</label>
+		</transition>
+		<transition id="id24">
+			<source ref="id17"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="93" y="340">reset!</label>
+		</transition>
+		<transition id="id25">
+			<source ref="id18"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="399" y="416">reset!</label>
+		</transition>
+	</template>
+	<system>
+system LibraryController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

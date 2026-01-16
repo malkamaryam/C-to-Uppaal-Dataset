@@ -1,0 +1,129 @@
+using System;
+
+public enum Channel
+{
+    PgArrive,       // pg_arrive
+    PgIssueTicket,  // pg_issue_ticket
+    PgPay,          // pg_pay
+    PgOpenGate,     // pg_open_gate
+    PgPassGate,     // pg_pass_gate
+    PgCloseGate,    // pg_close_gate
+    PgCancel        // pg_cancel
+}
+
+public enum ControllerState
+{
+    Closed,     // id52000
+    Ticketing,  // id52001
+    AwaitPay,   // id52002
+    Open        // id52003
+}
+
+public enum UserState
+{
+    U_Outside,   // id53000
+    U_Ticket,    // id53001
+    U_Pay,       // id53002
+    U_GateOpen   // id53003
+}
+
+public sealed class ParkingGateMediumPaired
+{
+    // UPPAAL globals
+    public int CarPresent { get; private set; } = 0; // car_present
+    public int HasTicket  { get; private set; } = 0; // has_ticket
+    public int Paid       { get; private set; } = 0; // paid
+
+    public ControllerState Controller { get; private set; } = ControllerState.Closed;
+    public UserState User { get; private set; } = UserState.U_Outside;
+
+    // Explicit handshake: only if sender can send AND receiver can receive, including guards.
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        // Atomic (single-threaded)
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // ---------------- Controller side (? in UPPAAL) ----------------
+    private bool ControllerCanReceive(ControllerState s, Channel ch) => (s, ch) switch
+    {
+        (ControllerState.Closed,    Channel.PgArrive)      => CarPresent == 0,
+        (ControllerState.Ticketing, Channel.PgIssueTicket) => CarPresent == 1 && HasTicket == 0,
+        (ControllerState.AwaitPay,  Channel.PgPay)         => HasTicket == 1 && Paid == 0,
+        (ControllerState.AwaitPay,  Channel.PgOpenGate)    => CarPresent == 1 && HasTicket == 1 && Paid == 1,
+        (ControllerState.Open,      Channel.PgPassGate)    => CarPresent == 1,
+        (ControllerState.Open,      Channel.PgCloseGate)   => CarPresent == 0 && HasTicket == 1 && Paid == 1,
+        (ControllerState.Ticketing, Channel.PgCancel)      => true,
+        (ControllerState.AwaitPay,  Channel.PgCancel)      => true,
+        _ => false
+    };
+
+    private ControllerState ControllerApplyReceive(ControllerState s, Channel ch) => (s, ch) switch
+    {
+        (ControllerState.Closed, Channel.PgArrive) =>
+            SetSession(car: 1, ticket: 0, paid: 0, next: ControllerState.Ticketing),
+
+        (ControllerState.Ticketing, Channel.PgIssueTicket) =>
+            SetSession(car: CarPresent, ticket: 1, paid: 0, next: ControllerState.AwaitPay),
+
+        (ControllerState.AwaitPay, Channel.PgPay) =>
+            SetSession(car: CarPresent, ticket: HasTicket, paid: 1, next: ControllerState.AwaitPay),
+
+        (ControllerState.AwaitPay, Channel.PgOpenGate) =>
+            ControllerState.Open,
+
+        (ControllerState.Open, Channel.PgPassGate) =>
+            SetSession(car: 0, ticket: HasTicket, paid: Paid, next: ControllerState.Open),
+
+        (ControllerState.Open, Channel.PgCloseGate) =>
+            SetSession(car: 0, ticket: 0, paid: 0, next: ControllerState.Closed),
+
+        (ControllerState.Ticketing, Channel.PgCancel) =>
+            SetSession(car: 0, ticket: 0, paid: 0, next: ControllerState.Closed),
+
+        (ControllerState.AwaitPay, Channel.PgCancel) =>
+            SetSession(car: 0, ticket: 0, paid: 0, next: ControllerState.Closed),
+
+        _ => throw new InvalidOperationException($"Controller cannot receive {ch} in {s}.")
+    };
+
+    // ---------------- User side (! in UPPAAL) ----------------
+    private bool UserCanSend(UserState s, Channel ch) => (s, ch) switch
+    {
+        (UserState.U_Outside,  Channel.PgArrive)     => CarPresent == 0,
+        (UserState.U_Ticket,   Channel.PgIssueTicket)=> CarPresent == 1 && HasTicket == 0,
+        (UserState.U_Pay,      Channel.PgPay)        => HasTicket == 1 && Paid == 0,
+        (UserState.U_Pay,      Channel.PgOpenGate)   => CarPresent == 1 && HasTicket == 1 && Paid == 1,
+        (UserState.U_GateOpen, Channel.PgPassGate)   => CarPresent == 1,
+        (UserState.U_GateOpen, Channel.PgCloseGate)  => CarPresent == 0 && HasTicket == 1 && Paid == 1,
+        (UserState.U_Ticket,   Channel.PgCancel)     => true,
+        (UserState.U_Pay,      Channel.PgCancel)     => true,
+        _ => false
+    };
+
+    private UserState UserApplySend(UserState s, Channel ch) => (s, ch) switch
+    {
+        (UserState.U_Outside, Channel.PgArrive)       => UserState.U_Ticket,
+        (UserState.U_Ticket,  Channel.PgIssueTicket)  => UserState.U_Pay,
+        (UserState.U_Pay,     Channel.PgPay)          => UserState.U_Pay,
+        (UserState.U_Pay,     Channel.PgOpenGate)     => UserState.U_GateOpen,
+        (UserState.U_GateOpen,Channel.PgPassGate)     => UserState.U_GateOpen,
+        (UserState.U_GateOpen,Channel.PgCloseGate)    => UserState.U_Outside,
+        (UserState.U_Ticket,  Channel.PgCancel)       => UserState.U_Outside,
+        (UserState.U_Pay,     Channel.PgCancel)       => UserState.U_Outside,
+        _ => throw new InvalidOperationException($"User cannot send {ch} in {s}.")
+    };
+
+    private ControllerState SetSession(int car, int ticket, int paid, ControllerState next)
+    {
+        CarPresent = car;
+        HasTicket  = ticket;
+        Paid       = paid;
+        return next;
+    }
+}

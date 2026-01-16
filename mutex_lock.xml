@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan req1;
+chan req2;
+chan rel1;
+chan rel2;
+</declaration>
+	<template>
+		<name x="5" y="5">Mutex</name>
+		<location id="id0" x="0" y="0">
+			<name x="-25" y="8">Free</name>
+		</location>
+		<location id="id1" x="200" y="-60">
+			<name x="170" y="-93">HeldByP1</name>
+		</location>
+		<location id="id2" x="200" y="60">
+			<name x="170" y="68">HeldByP2</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="68" y="-51">req1?</label>
+		</transition>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="51" y="76">req2?</label>
+			<nail x="76" y="76"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="59" y="-102">rel1?</label>
+			<nail x="76" y="-85"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="85" y="8">rel2?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">P1</name>
+		<location id="id7" x="0" y="200">
+			<name x="-8" y="212">Out</name>
+		</location>
+		<location id="id8" x="200" y="200">
+			<name x="187" y="212">InCS</name>
+		</location>
+		<init ref="id7"/>
+		<transition id="id9">
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="85" y="136">req1!</label>
+			<nail x="102" y="153"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="68" y="204">rel1!</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">P2</name>
+		<location id="id11" x="0" y="320">
+			<name x="-17" y="331">Out</name>
+		</location>
+		<location id="id12" x="200" y="320">
+			<name x="187" y="331">InCS</name>
+		</location>
+		<init ref="id11"/>
+		<transition id="id13">
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="76" y="255">req2!</label>
+			<nail x="102" y="272"/>
+		</transition>
+		<transition id="id14">
+			<source ref="id12"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="68" y="323">rel2!</label>
+		</transition>
+	</template>
+	<system>
+system Mutex, P1, P2;
+</system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>No deadlock (processes can always request/release; mutex ensures exclusivity).</comment>
+		</query>
+	</queries>
+</nta>

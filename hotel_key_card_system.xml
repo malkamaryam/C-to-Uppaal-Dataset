@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan hk_card_insert, hk_card_read, hk_card_valid, hk_card_invalid, hk_door_open, hk_door_close, hk_reset;
+
+int attempts = 0;
+const int max_attempts = 2;
+  </declaration>
+	<template>
+		<name x="60" y="30">KeyCardController</name>
+		<location id="id0" x="85" y="238">
+			<name x="60" y="255">Locked</name>
+		</location>
+		<location id="id1" x="272" y="170">
+			<name x="170" y="136">CardInserted</name>
+		</location>
+		<location id="id2" x="476" y="59">
+			<name x="442" y="25">Checking</name>
+		</location>
+		<location id="id3" x="697" y="59">
+			<name x="663" y="25">Unlocked</name>
+		</location>
+		<location id="id4" x="697" y="238">
+			<name x="663" y="246">DoorOpen</name>
+		</location>
+		<location id="id5" x="85" y="51">
+			<name x="59" y="17">Denied</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="119" y="187">hk_card_insert?</label>
+			<label kind="assignment" x="178" y="204">attempts=0</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="348" y="170">hk_card_read?</label>
+			<nail x="391" y="170"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="527" y="68">hk_card_valid?</label>
+			<label kind="assignment" x="520" y="90">attempts=0</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="178" y="102">attempts &lt; max_attempts-1</label>
+			<label kind="synchronisation" x="238" y="119">hk_card_invalid?</label>
+			<label kind="assignment" x="229" y="85">attempts=attempts+1</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="guard" x="170" y="34">attempts &gt;= max_attempts-1</label>
+			<label kind="synchronisation" x="204" y="17">hk_card_invalid?</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="705" y="153">hk_door_open?</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="331" y="238">hk_door_close?</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="0" y="161">hk_reset?</label>
+			<label kind="assignment" x="-8" y="144">attempts=0</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="300">UserEnv</name>
+		<location id="id14" x="77" y="442">
+			<name x="51" y="459">U_Locked</name>
+		</location>
+		<location id="id15" x="221" y="374">
+			<name x="153" y="340">U_CardInserted</name>
+		</location>
+		<location id="id16" x="416" y="306">
+			<name x="375" y="277">U_Checking</name>
+		</location>
+		<location id="id17" x="722" y="306">
+			<name x="680" y="272">U_Unlocked</name>
+		</location>
+		<location id="id18" x="722" y="450">
+			<name x="688" y="459">U_DoorOpen</name>
+		</location>
+		<location id="id19" x="76" y="306">
+			<name x="42" y="272">U_Denied</name>
+		</location>
+		<init ref="id14"/>
+		<transition id="id20">
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="144" y="408">hk_card_insert!</label>
+		</transition>
+		<transition id="id21">
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="314" y="374">hk_card_read!</label>
+			<nail x="340" y="374"/>
+		</transition>
+		<transition id="id22">
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="510" y="289">hk_card_valid!</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="guard" x="153" y="323">attempts &lt; max_attempts-1</label>
+			<label kind="synchronisation" x="204" y="306">hk_card_invalid!</label>
+		</transition>
+		<transition id="id24">
+			<source ref="id16"/>
+			<target ref="id19"/>
+			<label kind="guard" x="136" y="272">attempts &gt;= max_attempts-1</label>
+			<label kind="synchronisation" x="187" y="289">hk_card_invalid!</label>
+		</transition>
+		<transition id="id25">
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="731" y="365">hk_door_open!</label>
+		</transition>
+		<transition id="id26">
+			<source ref="id18"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="365" y="450">hk_door_close!</label>
+		</transition>
+		<transition id="id27">
+			<source ref="id19"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-8" y="365">hk_reset!</label>
+		</transition>
+	</template>
+	<system>
+system KeyCardController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

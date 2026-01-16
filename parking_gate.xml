@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan pg_arrive, pg_issue_ticket, pg_pay, pg_open_gate, pg_pass_gate, pg_close_gate, pg_cancel;
+
+int car_present = 0; /* 0/1 */
+int has_ticket  = 0; /* 0/1 */
+int paid        = 0; /* 0/1 */
+  </declaration>
+	<template>
+		<name x="60" y="30">ParkingGateController</name>
+		<location id="id0" x="76" y="221">
+			<name x="51" y="229">Closed</name>
+		</location>
+		<location id="id1" x="289" y="51">
+			<name x="255" y="17">Ticketing</name>
+		</location>
+		<location id="id2" x="722" y="42">
+			<name x="739" y="34">AwaitPay</name>
+		</location>
+		<location id="id3" x="722" y="221">
+			<name x="739" y="204">Open</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-51" y="111">car_present==0</label>
+			<label kind="synchronisation" x="-18" y="145">pg_arrive?</label>
+			<label kind="assignment" x="-238" y="128">car_present=1, has_ticket=0, paid=0</label>
+			<nail x="76" y="51"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="356" y="26">car_present==1 &amp;&amp; has_ticket==0</label>
+			<label kind="synchronisation" x="407" y="9">pg_issue_ticket?</label>
+			<label kind="assignment" x="391" y="-8">has_ticket=1, paid=0</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="629" y="-9">has_ticket==1 &amp;&amp; paid==0</label>
+			<label kind="synchronisation" x="705" y="-25">pg_pay?</label>
+			<label kind="assignment" x="705" y="-42">paid=1</label>
+			<nail x="692" y="12"/>
+			<nail x="752" y="12"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="722" y="110">car_present==1 &amp;&amp; has_ticket==1 &amp;&amp; paid==1</label>
+			<label kind="synchronisation" x="722" y="127">pg_open_gate?</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="guard" x="671" y="306">car_present==1</label>
+			<label kind="synchronisation" x="671" y="289">pg_pass_gate?</label>
+			<label kind="assignment" x="671" y="323">car_present=0</label>
+			<nail x="680" y="289"/>
+			<nail x="773" y="289"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="212" y="221">car_present==0 &amp;&amp; has_ticket==1 &amp;&amp; paid==1</label>
+			<label kind="synchronisation" x="501" y="110">pg_close_gate?</label>
+			<label kind="assignment" x="314" y="238">has_ticket=0, paid=0</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="119" y="102">pg_cancel?</label>
+			<label kind="assignment" x="85" y="119">car_present=0, has_ticket=0, paid=0</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="493" y="127">pg_cancel?</label>
+			<label kind="assignment" x="391" y="93">car_present=0, has_ticket=0, paid=0</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="300">UserEnv</name>
+		<location id="id12" x="0" y="425">
+			<name x="-34" y="433">U_Outside</name>
+		</location>
+		<location id="id13" x="170" y="238">
+			<name x="136" y="204">U_Ticket</name>
+		</location>
+		<location id="id14" x="722" y="229">
+			<name x="739" y="221">U_Pay</name>
+		</location>
+		<location id="id15" x="720" y="420">
+			<name x="731" y="408">U_GateOpen</name>
+		</location>
+		<init ref="id12"/>
+		<transition id="id16">
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-127" y="306">car_present==0</label>
+			<label kind="synchronisation" x="-93" y="289">pg_arrive!</label>
+			<nail x="0" y="238"/>
+		</transition>
+		<transition id="id17">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="guard" x="289" y="195">car_present==1 &amp;&amp; has_ticket==0</label>
+			<label kind="synchronisation" x="340" y="212">pg_issue_ticket!</label>
+		</transition>
+		<transition id="id18">
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="guard" x="629" y="178">has_ticket==1 &amp;&amp; paid==0</label>
+			<label kind="synchronisation" x="688" y="161">pg_pay!</label>
+			<nail x="692" y="199"/>
+			<nail x="752" y="199"/>
+		</transition>
+		<transition id="id19">
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="guard" x="731" y="314">car_present==1 &amp;&amp; has_ticket==1 &amp;&amp; paid==1</label>
+			<label kind="synchronisation" x="731" y="331">pg_open_gate!</label>
+		</transition>
+		<transition id="id20">
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="guard" x="663" y="493">car_present==1</label>
+			<label kind="synchronisation" x="671" y="476">pg_pass_gate!</label>
+			<nail x="688" y="476"/>
+			<nail x="748" y="476"/>
+		</transition>
+		<transition id="id21">
+			<source ref="id15"/>
+			<target ref="id12"/>
+			<label kind="guard" x="221" y="442">car_present==0 &amp;&amp; has_ticket==1 &amp;&amp; paid==1</label>
+			<label kind="synchronisation" x="323" y="425">pg_close_gate!</label>
+		</transition>
+		<transition id="id22">
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="93" y="314">pg_cancel!</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id14"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="306" y="297">pg_cancel!</label>
+		</transition>
+	</template>
+	<system>
+system ParkingGateController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

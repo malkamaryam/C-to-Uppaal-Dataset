@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan ping;
+chan pong;
+</declaration>
+	<template>
+		<name x="5" y="5">Client</name>
+		<location id="id0" x="0" y="0">
+			<name x="-17" y="8">Idle</name>
+		</location>
+		<location id="id1" x="200" y="0">
+			<name x="170" y="8">Waiting</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id2">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="85" y="-68">ping!</label>
+			<nail x="102" y="-51"/>
+		</transition>
+		<transition id="id3">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="76" y="0">pong?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Server</name>
+		<location id="id4" x="0" y="200">
+			<name x="0" y="212">Idle</name>
+		</location>
+		<init ref="id4"/>
+		<transition id="id5">
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-8" y="136">ping?</label>
+			<nail x="-25" y="161"/>
+			<nail x="42" y="161"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-76" y="238">pong!</label>
+			<nail x="-59" y="221"/>
+			<nail x="-17" y="255"/>
+		</transition>
+	</template>
+	<system>
+system Client, Server;
+</system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>No deadlock (ping and pong always possible).</comment>
+		</query>
+	</queries>
+</nta>

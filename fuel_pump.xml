@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan fp_nozzle_lift, fp_select_grade, fp_authorize, fp_flow_begin, fp_flow_stop, fp_nozzle_return, fp_cancel;
+
+/* Use bounded ints to avoid UPPAAL type errors */
+int[0,1] nozzle_up  = 0;
+int[0,1] selected   = 0;
+int[0,1] authorized = 0;
+int[0,1] flowing    = 0;
+  </declaration>
+	<template>
+		<name x="60" y="30">FuelPumpController</name>
+		<location id="id0" x="0" y="374">
+			<name x="-17" y="391">Idle</name>
+		</location>
+		<location id="id1" x="340" y="204">
+			<name x="306" y="170">NozzleUp</name>
+		</location>
+		<location id="id2" x="620" y="204">
+			<name x="586" y="170">GradeSel</name>
+		</location>
+		<location id="id3" x="875" y="365">
+			<name x="858" y="331">Auth</name>
+		</location>
+		<location id="id4" x="1487" y="365">
+			<name x="1462" y="331">Fueling</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="102" y="229">nozzle_up==0</label>
+			<label kind="synchronisation" x="85" y="246">fp_nozzle_lift?</label>
+			<label kind="assignment" x="-102" y="280">nozzle_up=1, selected=0, authorized=0, flowing=0</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="416" y="170">selected==0</label>
+			<label kind="synchronisation" x="399" y="187">fp_select_grade?</label>
+			<label kind="assignment" x="255" y="204">selected=1</label>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="722" y="255">authorized==0</label>
+			<label kind="synchronisation" x="697" y="238">fp_authorize?</label>
+			<label kind="assignment" x="680" y="221">authorized=1</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="926" y="374">nozzle_up==1 &amp;&amp; selected==1 &amp;&amp; authorized==1 &amp;&amp; flowing==0</label>
+			<label kind="synchronisation" x="1122" y="391">fp_flow_begin?</label>
+			<label kind="assignment" x="1139" y="408">flowing=1</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="guard" x="1113" y="187">flowing==1</label>
+			<label kind="synchronisation" x="1096" y="221">fp_flow_stop?</label>
+			<label kind="assignment" x="1113" y="204">flowing=0</label>
+			<nail x="1164" y="246"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="280" y="484">nozzle_up==1 &amp;&amp; flowing==0</label>
+			<label kind="synchronisation" x="314" y="467">fp_nozzle_return?</label>
+			<label kind="assignment" x="187" y="501">nozzle_up=0, selected=0, authorized=0, flowing=0</label>
+			<nail x="382" y="467"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-93" y="255">fp_cancel?</label>
+			<label kind="assignment" x="-425" y="272">nozzle_up=0, selected=0, authorized=0, flowing=0</label>
+			<nail x="0" y="204"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="340" y="280">fp_cancel?</label>
+			<label kind="assignment" x="144" y="263">nozzle_up=0, selected=0, authorized=0, flowing=0</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="357" y="408">flowing==0</label>
+			<label kind="synchronisation" x="357" y="391">fp_cancel?</label>
+			<label kind="assignment" x="221" y="374">nozzle_up=0, selected=0, authorized=0, flowing=0</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="300">UserEnv</name>
+		<location id="id14" x="119" y="552">
+			<name x="91" y="566">U_Idle</name>
+		</location>
+		<location id="id15" x="119" y="425">
+			<name x="76" y="391">U_NozzleUp</name>
+		</location>
+		<location id="id16" x="493" y="433">
+			<name x="450" y="399">U_GradeSel</name>
+		</location>
+		<location id="id17" x="661" y="547">
+			<name x="637" y="510">U_Auth</name>
+		</location>
+		<location id="id18" x="1037" y="544">
+			<name x="1003" y="510">U_Fueling</name>
+		</location>
+		<init ref="id14"/>
+		<transition id="id19">
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="guard" x="191" y="527">nozzle_up==0</label>
+			<label kind="synchronisation" x="119" y="476">fp_nozzle_lift!</label>
+		</transition>
+		<transition id="id20">
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="guard" x="246" y="391">selected==0</label>
+			<label kind="synchronisation" x="212" y="408">fp_select_grade!</label>
+		</transition>
+		<transition id="id21">
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="guard" x="561" y="467">authorized==0</label>
+			<label kind="synchronisation" x="552" y="450">fp_authorize!</label>
+		</transition>
+		<transition id="id22">
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="637" y="561">nozzle_up==1 &amp;&amp; selected==1 &amp;&amp; authorized==1 &amp;&amp; flowing==0</label>
+			<label kind="synchronisation" x="782" y="544">fp_flow_begin!</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id18"/>
+			<target ref="id17"/>
+			<label kind="guard" x="807" y="433">flowing==1</label>
+			<label kind="synchronisation" x="799" y="450">fp_flow_stop!</label>
+			<nail x="850" y="467"/>
+		</transition>
+		<transition id="id24">
+			<source ref="id17"/>
+			<target ref="id14"/>
+			<label kind="guard" x="255" y="646">nozzle_up==1 &amp;&amp; flowing==0</label>
+			<label kind="synchronisation" x="280" y="629">fp_nozzle_return!</label>
+			<nail x="365" y="629"/>
+		</transition>
+		<transition id="id25">
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-25" y="459">fp_cancel!</label>
+			<nail x="42" y="493"/>
+		</transition>
+		<transition id="id26">
+			<source ref="id16"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="314" y="484">fp_cancel!</label>
+		</transition>
+		<transition id="id27">
+			<source ref="id17"/>
+			<target ref="id14"/>
+			<label kind="guard" x="323" y="569">flowing==0</label>
+			<label kind="synchronisation" x="323" y="552">fp_cancel!</label>
+		</transition>
+	</template>
+	<system>
+system FuelPumpController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

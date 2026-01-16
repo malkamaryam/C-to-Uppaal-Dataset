@@ -1,0 +1,113 @@
+using System;
+
+public enum Channel
+{
+    AlarmArm,         // UPPAAL: alarm_arm
+    AlarmDisarm,      // UPPAAL: alarm_disarm
+    AlarmSensorTrip,  // UPPAAL: alarm_sensor_trip
+    AlarmConfirm,     // UPPAAL: alarm_confirm
+    AlarmFalse,       // UPPAAL: alarm_false
+    AlarmSilence,     // UPPAAL: alarm_silence
+    AlarmReset        // UPPAAL: alarm_reset
+}
+
+public enum AlarmControllerState
+{
+    Disarmed,   // UPPAAL AlarmController: id9000
+    Armed,      // UPPAAL AlarmController: id9001
+    Triggered,  // UPPAAL AlarmController: id9002
+    Sounding,   // UPPAAL AlarmController: id9003
+    Silenced    // UPPAAL AlarmController: id9004
+}
+
+public enum UserEnvState
+{
+    U_Disarmed,  // UPPAAL UserEnv: id9100
+    U_Armed,     // UPPAAL UserEnv: id9101
+    U_Triggered, // UPPAAL UserEnv: id9102
+    U_Sounding,  // UPPAAL UserEnv: id9103
+    U_Silenced   // UPPAAL UserEnv: id9104
+}
+
+public sealed class SecurityAlarmPaired
+{
+    public AlarmControllerState Controller { get; private set; } = AlarmControllerState.Disarmed;
+    public UserEnvState User { get; private set; } = UserEnvState.U_Disarmed;
+
+    // Explicit handshake: action happens ONLY if sender can send AND receiver can receive.
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // ---------------- Controller side (sync '?') ----------------
+    private static bool ControllerCanReceive(AlarmControllerState s, Channel ch) => (s, ch) switch
+    {
+        (AlarmControllerState.Disarmed,  Channel.AlarmArm)        => true,
+        (AlarmControllerState.Armed,     Channel.AlarmDisarm)     => true,
+        (AlarmControllerState.Armed,     Channel.AlarmSensorTrip) => true,
+        (AlarmControllerState.Triggered, Channel.AlarmConfirm)    => true,
+        (AlarmControllerState.Triggered, Channel.AlarmFalse)      => true,
+        (AlarmControllerState.Sounding,  Channel.AlarmSilence)    => true,
+        (AlarmControllerState.Silenced,  Channel.AlarmReset)      => true,
+        _ => false
+    };
+
+    private static AlarmControllerState ControllerApplyReceive(AlarmControllerState s, Channel ch) => (s, ch) switch
+    {
+        (AlarmControllerState.Disarmed,  Channel.AlarmArm)        => AlarmControllerState.Armed,
+        (AlarmControllerState.Armed,     Channel.AlarmDisarm)     => AlarmControllerState.Disarmed,
+        (AlarmControllerState.Armed,     Channel.AlarmSensorTrip) => AlarmControllerState.Triggered,
+        (AlarmControllerState.Triggered, Channel.AlarmConfirm)    => AlarmControllerState.Sounding,
+        (AlarmControllerState.Triggered, Channel.AlarmFalse)      => AlarmControllerState.Armed,
+        (AlarmControllerState.Sounding,  Channel.AlarmSilence)    => AlarmControllerState.Silenced,
+        (AlarmControllerState.Silenced,  Channel.AlarmReset)      => AlarmControllerState.Disarmed,
+        _ => throw new InvalidOperationException($"Controller cannot receive {ch} in state {s}.")
+    };
+
+    // ---------------- UserEnv side (sync '!') ----------------
+    private static bool UserCanSend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Disarmed,  Channel.AlarmArm)        => true,
+        (UserEnvState.U_Armed,     Channel.AlarmDisarm)     => true,
+        (UserEnvState.U_Armed,     Channel.AlarmSensorTrip) => true,
+        (UserEnvState.U_Triggered, Channel.AlarmConfirm)    => true,
+        (UserEnvState.U_Triggered, Channel.AlarmFalse)      => true,
+        (UserEnvState.U_Sounding,  Channel.AlarmSilence)    => true,
+        (UserEnvState.U_Silenced,  Channel.AlarmReset)      => true,
+        _ => false
+    };
+
+    private static UserEnvState UserApplySend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Disarmed,  Channel.AlarmArm)        => UserEnvState.U_Armed,
+        (UserEnvState.U_Armed,     Channel.AlarmDisarm)     => UserEnvState.U_Disarmed,
+        (UserEnvState.U_Armed,     Channel.AlarmSensorTrip) => UserEnvState.U_Triggered,
+        (UserEnvState.U_Triggered, Channel.AlarmConfirm)    => UserEnvState.U_Sounding,
+        (UserEnvState.U_Triggered, Channel.AlarmFalse)      => UserEnvState.U_Armed,
+        (UserEnvState.U_Sounding,  Channel.AlarmSilence)    => UserEnvState.U_Silenced,
+        (UserEnvState.U_Silenced,  Channel.AlarmReset)      => UserEnvState.U_Disarmed,
+        _ => throw new InvalidOperationException($"User cannot send {ch} in state {s}.")
+    };
+
+    public static void Main()
+    {
+        var a = new SecurityAlarmPaired();
+
+        // One valid "real alarm" trace per XML:
+        // alarm_arm -> alarm_sensor_trip -> alarm_confirm -> alarm_silence -> alarm_reset
+        if (!a.TryHandshake(Channel.AlarmArm))        throw new Exception("Failed: AlarmArm");
+        if (!a.TryHandshake(Channel.AlarmSensorTrip)) throw new Exception("Failed: AlarmSensorTrip");
+        if (!a.TryHandshake(Channel.AlarmConfirm))    throw new Exception("Failed: AlarmConfirm");
+        if (!a.TryHandshake(Channel.AlarmSilence))    throw new Exception("Failed: AlarmSilence");
+        if (!a.TryHandshake(Channel.AlarmReset))      throw new Exception("Failed: AlarmReset");
+
+        if (a.Controller != AlarmControllerState.Disarmed || a.User != UserEnvState.U_Disarmed)
+            throw new Exception($"Unexpected final: Controller={a.Controller}, User={a.User}");
+    }
+}

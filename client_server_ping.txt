@@ -1,0 +1,94 @@
+using System;
+
+public class ClientServerPing
+{
+    public enum Act { Ping, Pong }
+
+    // ---------------- Client ----------------
+    public enum ClientState { Idle, Waiting }
+
+    public class Client
+    {
+        public ClientState State { get; private set; } = ClientState.Idle;
+
+        public bool CanSend(Act a)
+        {
+            return State == ClientState.Idle && a == Act.Ping;
+        }
+
+        public bool CanReceive(Act a)
+        {
+            return State == ClientState.Waiting && a == Act.Pong;
+        }
+
+        public void Send(Act a)
+        {
+            if (!CanSend(a))
+                throw new InvalidOperationException("Client cannot send");
+
+            State = ClientState.Waiting;
+        }
+
+        public void Receive(Act a)
+        {
+            if (!CanReceive(a))
+                throw new InvalidOperationException("Client cannot receive");
+
+            State = ClientState.Idle;
+        }
+    }
+
+    // ---------------- Server ----------------
+    public class Server
+    {
+        // Single state: Idle
+        public bool CanReceive(Act a) => a == Act.Ping;
+        public bool CanSend(Act a) => a == Act.Pong;
+
+        public void Receive(Act a)
+        {
+            if (a != Act.Ping)
+                throw new InvalidOperationException();
+        }
+
+        public void Send(Act a)
+        {
+            if (a != Act.Pong)
+                throw new InvalidOperationException();
+        }
+    }
+
+    // ---------------- Handshake ----------------
+    static bool TrySync(Client c, Server s, Act a)
+    {
+        if (a == Act.Ping && c.CanSend(a) && s.CanReceive(a))
+        {
+            c.Send(a);
+            s.Receive(a);
+            return true;
+        }
+
+        if (a == Act.Pong && s.CanSend(a) && c.CanReceive(a))
+        {
+            s.Send(a);
+            c.Receive(a);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static void Main()
+    {
+        var client = new Client();
+        var server = new Server();
+
+        Console.WriteLine($"Init: Client={client.State}");
+
+        TrySync(client, server, Act.Ping);
+        Console.WriteLine($"After ping: Client={client.State}");
+
+        TrySync(client, server, Act.Pong);
+        Console.WriteLine($"After pong: Client={client.State}");
+    }
+}

@@ -1,0 +1,95 @@
+using System;
+
+public enum Channel
+{
+    BookScan,       // book_scan
+    MemberCheck,    // member_check
+    MemberValid,    // member_valid
+    MemberInvalid,  // member_invalid
+    IssueBook,      // issue_book
+    Reset           // reset
+}
+
+public enum LibraryControllerState
+{
+    Idle,            // id12000
+    BookScanned,     // id12001
+    CheckingMember,  // id12002
+    Verified,        // id12003
+    Rejected,        // id12004
+    Issued           // id12005
+}
+
+public enum UserEnvState
+{
+    U_Idle,        // id13000
+    U_BookScanned, // id13001
+    U_Checking,    // id13002
+    U_Valid,       // id13003
+    U_Invalid,     // id13004
+    U_Issued       // id13005
+}
+
+public sealed class LibraryCheckoutPaired
+{
+    public LibraryControllerState Controller { get; private set; } = LibraryControllerState.Idle;
+    public UserEnvState User { get; private set; } = UserEnvState.U_Idle;
+
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    private static bool ControllerCanReceive(LibraryControllerState s, Channel ch) => (s, ch) switch
+    {
+        (LibraryControllerState.Idle,           Channel.BookScan)      => true,
+        (LibraryControllerState.BookScanned,    Channel.MemberCheck)   => true,
+        (LibraryControllerState.CheckingMember, Channel.MemberValid)   => true,
+        (LibraryControllerState.CheckingMember, Channel.MemberInvalid) => true,
+        (LibraryControllerState.Verified,       Channel.IssueBook)     => true,
+        (LibraryControllerState.Rejected,       Channel.Reset)         => true,
+        (LibraryControllerState.Issued,         Channel.Reset)         => true,
+        _ => false
+    };
+
+    private static LibraryControllerState ControllerApplyReceive(LibraryControllerState s, Channel ch) => (s, ch) switch
+    {
+        (LibraryControllerState.Idle,           Channel.BookScan)      => LibraryControllerState.BookScanned,
+        (LibraryControllerState.BookScanned,    Channel.MemberCheck)   => LibraryControllerState.CheckingMember,
+        (LibraryControllerState.CheckingMember, Channel.MemberValid)   => LibraryControllerState.Verified,
+        (LibraryControllerState.CheckingMember, Channel.MemberInvalid) => LibraryControllerState.Rejected,
+        (LibraryControllerState.Verified,       Channel.IssueBook)     => LibraryControllerState.Issued,
+        (LibraryControllerState.Rejected,       Channel.Reset)         => LibraryControllerState.Idle,
+        (LibraryControllerState.Issued,         Channel.Reset)         => LibraryControllerState.Idle,
+        _ => throw new InvalidOperationException($"Controller cannot receive {ch} in {s}.")
+    };
+
+    private static bool UserCanSend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Idle,        Channel.BookScan)      => true,
+        (UserEnvState.U_BookScanned, Channel.MemberCheck)   => true,
+        (UserEnvState.U_Checking,    Channel.MemberValid)   => true,
+        (UserEnvState.U_Checking,    Channel.MemberInvalid) => true,
+        (UserEnvState.U_Valid,       Channel.IssueBook)     => true,
+        (UserEnvState.U_Invalid,     Channel.Reset)         => true,
+        (UserEnvState.U_Issued,      Channel.Reset)         => true,
+        _ => false
+    };
+
+    private static UserEnvState UserApplySend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Idle,        Channel.BookScan)      => UserEnvState.U_BookScanned,
+        (UserEnvState.U_BookScanned, Channel.MemberCheck)   => UserEnvState.U_Checking,
+        (UserEnvState.U_Checking,    Channel.MemberValid)   => UserEnvState.U_Valid,
+        (UserEnvState.U_Checking,    Channel.MemberInvalid) => UserEnvState.U_Invalid,
+        (UserEnvState.U_Valid,       Channel.IssueBook)     => UserEnvState.U_Issued,
+        (UserEnvState.U_Invalid,     Channel.Reset)         => UserEnvState.U_Idle,
+        (UserEnvState.U_Issued,      Channel.Reset)         => UserEnvState.U_Idle,
+        _ => throw new InvalidOperationException($"User cannot send {ch} in {s}.")
+    };
+}

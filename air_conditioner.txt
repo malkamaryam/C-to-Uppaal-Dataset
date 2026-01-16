@@ -1,0 +1,93 @@
+using System;
+
+public enum Channel
+{
+    AcPowerOn,       // UPPAAL: ac_power_on
+    AcStartCooling,  // UPPAAL: ac_start_cooling
+    AcStopCooling,   // UPPAAL: ac_stop_cooling
+    AcPowerOff       // UPPAAL: ac_power_off
+}
+
+public enum ACControllerState
+{
+    Off,     // UPPAAL: id10000
+    Idle,    // UPPAAL: id10001
+    Cooling  // UPPAAL: id10002
+}
+
+public enum UserEnvState
+{
+    U_Off,     // UPPAAL: id11000
+    U_Idle,    // UPPAAL: id11001
+    U_Cooling  // UPPAAL: id11002
+}
+
+public sealed class AirConditionerPaired
+{
+    public ACControllerState Controller { get; private set; } = ACControllerState.Off;
+    public UserEnvState User { get; private set; } = UserEnvState.U_Off;
+
+    // Explicit handshake logic
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // -------- Controller side ( ? ) --------
+    private static bool ControllerCanReceive(ACControllerState s, Channel ch) => (s, ch) switch
+    {
+        (ACControllerState.Off,    Channel.AcPowerOn)      => true,
+        (ACControllerState.Idle,   Channel.AcStartCooling) => true,
+        (ACControllerState.Cooling,Channel.AcStopCooling)  => true,
+        (ACControllerState.Idle,   Channel.AcPowerOff)     => true,
+        _ => false
+    };
+
+    private static ACControllerState ControllerApplyReceive(ACControllerState s, Channel ch) => (s, ch) switch
+    {
+        (ACControllerState.Off,     Channel.AcPowerOn)      => ACControllerState.Idle,
+        (ACControllerState.Idle,    Channel.AcStartCooling) => ACControllerState.Cooling,
+        (ACControllerState.Cooling, Channel.AcStopCooling)  => ACControllerState.Idle,
+        (ACControllerState.Idle,    Channel.AcPowerOff)     => ACControllerState.Off,
+        _ => throw new InvalidOperationException($"Controller cannot receive {ch} in {s}")
+    };
+
+    // -------- UserEnv side ( ! ) --------
+    private static bool UserCanSend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Off,    Channel.AcPowerOn)      => true,
+        (UserEnvState.U_Idle,   Channel.AcStartCooling) => true,
+        (UserEnvState.U_Cooling,Channel.AcStopCooling)  => true,
+        (UserEnvState.U_Idle,   Channel.AcPowerOff)     => true,
+        _ => false
+    };
+
+    private static UserEnvState UserApplySend(UserEnvState s, Channel ch) => (s, ch) switch
+    {
+        (UserEnvState.U_Off,     Channel.AcPowerOn)      => UserEnvState.U_Idle,
+        (UserEnvState.U_Idle,    Channel.AcStartCooling) => UserEnvState.U_Cooling,
+        (UserEnvState.U_Cooling, Channel.AcStopCooling)  => UserEnvState.U_Idle,
+        (UserEnvState.U_Idle,    Channel.AcPowerOff)     => UserEnvState.U_Off,
+        _ => throw new InvalidOperationException($"User cannot send {ch} in {s}")
+    };
+
+    public static void Main()
+    {
+        var ac = new AirConditionerPaired();
+
+        // Valid UPPAAL trace:
+        // ac_power_on -> ac_start_cooling -> ac_stop_cooling -> ac_power_off
+        if (!ac.TryHandshake(Channel.AcPowerOn))       throw new Exception("Fail: PowerOn");
+        if (!ac.TryHandshake(Channel.AcStartCooling))  throw new Exception("Fail: StartCooling");
+        if (!ac.TryHandshake(Channel.AcStopCooling))   throw new Exception("Fail: StopCooling");
+        if (!ac.TryHandshake(Channel.AcPowerOff))      throw new Exception("Fail: PowerOff");
+
+        if (ac.Controller != ACControllerState.Off || ac.User != UserEnvState.U_Off)
+            throw new Exception($"Unexpected final state: {ac.Controller}, {ac.User}");
+    }
+}

@@ -1,0 +1,41 @@
+using System;
+
+public class HeartbeatMonitor
+{
+    public enum Act { Hb, Miss, Alarm, Reset }
+
+    // ---------------- Monitor ----------------
+    public enum MonitorState { Normal, Suspect, Alarmed }
+
+    public class Monitor
+    {
+        public MonitorState State { get; private set; } = MonitorState.Normal;
+
+        // Monitor receives ? actions
+        public bool CanReceive(Act a)
+        {
+            switch (State)
+            {
+                case MonitorState.Normal:
+                    return a == Act.Hb || a == Act.Miss;
+
+                case MonitorState.Suspect:
+                    return a == Act.Hb || a == Act.Miss;
+
+                case MonitorState.Alarmed:
+                    return a == Act.Alarm || a == Act.Reset;
+
+                default:
+                    return false;
+            }
+        }
+
+        public void Receive(Act a)
+        {
+            if (!CanReceive(a))
+                throw new InvalidOperationException($"Monitor cannot receive {a} in {State}");
+
+            if (State == MonitorState.Normal && a == Act.Hb)
+            {
+                // self-loop: stay Normal
+                State = Monitor

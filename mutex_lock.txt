@@ -1,0 +1,142 @@
+using System;
+
+public class MutexLockUppaalEquivalent
+{
+    public enum Act { Req1, Req2, Rel1, Rel2 }
+
+    // ---------------- Mutex states ----------------
+    public enum MutexState { Free, HeldByP1, HeldByP2 }
+
+    public class Mutex
+    {
+        public MutexState State { get; private set; } = MutexState.Free;
+
+        // Mutex receives ? actions
+        public bool CanReceive(Act a)
+        {
+            switch (State)
+            {
+                case MutexState.Free:
+                    return a == Act.Req1 || a == Act.Req2;
+
+                case MutexState.HeldByP1:
+                    return a == Act.Rel1;
+
+                case MutexState.HeldByP2:
+                    return a == Act.Rel2;
+
+                default:
+                    return false;
+            }
+        }
+
+        public void Receive(Act a)
+        {
+            if (!CanReceive(a))
+                throw new InvalidOperationException($"Mutex cannot receive {a} in {State}");
+
+            if (State == MutexState.Free && a == Act.Req1) State = MutexState.HeldByP1;
+            else if (State == MutexState.Free && a == Act.Req2) State = MutexState.HeldByP2;
+            else if (State == MutexState.HeldByP1 && a == Act.Rel1) State = MutexState.Free;
+            else if (State == MutexState.HeldByP2 && a == Act.Rel2) State = MutexState.Free;
+        }
+    }
+
+    // ---------------- Process 1 ----------------
+    public enum PState { Out, InCS }
+
+    public class P1
+    {
+        public PState State { get; private set; } = PState.Out;
+
+        // P1 sends ! actions
+        public bool CanSend(Act a)
+        {
+            if (State == PState.Out) return a == Act.Req1;
+            return a == Act.Rel1; // InCS
+        }
+
+        public void Send(Act a)
+        {
+            if (!CanSend(a))
+                throw new InvalidOperationException($"P1 cannot send {a} in {State}");
+
+            if (State == PState.Out && a == Act.Req1) State = PState.InCS;
+            else if (State == PState.InCS && a == Act.Rel1) State = PState.Out;
+        }
+    }
+
+    // ---------------- Process 2 ----------------
+    public class P2
+    {
+        public PState State { get; private set; } = PState.Out;
+
+        // P2 sends ! actions
+        public bool CanSend(Act a)
+        {
+            if (State == PState.Out) return a == Act.Req2;
+            return a == Act.Rel2; // InCS
+        }
+
+        public void Send(Act a)
+        {
+            if (!CanSend(a))
+                throw new InvalidOperationException($"P2 cannot send {a} in {State}");
+
+            if (State == PState.Out && a == Act.Req2) State = PState.InCS;
+            else if (State == PState.InCS && a == Act.Rel2) State = PState.Out;
+        }
+    }
+
+    // ---------------- Handshake ----------------
+    // In UPPAAL, a sync happens only if one side does ! and the other does ?
+    static bool TrySync(Mutex m, P1 p1, P2 p2, Act a)
+    {
+        // Who is the sender?
+        bool p1Sends = p1.CanSend(a);
+        bool p2Sends = p2.CanSend(a);
+
+        // Only one sender should send a given action in this model.
+        if (p1Sends && m.CanReceive(a))
+        {
+            p1.Send(a);
+            m.Receive(a);
+            return true;
+        }
+
+        if (p2Sends && m.CanReceive(a))
+        {
+            p2.Send(a);
+            m.Receive(a);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static void Main()
+    {
+        var m = new Mutex();
+        var p1 = new P1();
+        var p2 = new P2();
+
+        Console.WriteLine($"Init: Mutex={m.State}, P1={p1.State}, P2={p2.State}");
+
+        // P1 enters CS
+        TrySync(m, p1, p2, Act.Req1);
+        Console.WriteLine($"After Req1: Mutex={m.State}, P1={p1.State}, P2={p2.State}");
+
+        // P2 tries to enter CS (will fail because mutex not free)
+        bool ok = TrySync(m, p1, p2, Act.Req2);
+        Console.WriteLine($"Req2 synced? {ok}");
+        Console.WriteLine($"State: Mutex={m.State}, P1={p1.State}, P2={p2.State}");
+
+        // P1 leaves CS
+        TrySync(m, p1, p2, Act.Rel1);
+        Console.WriteLine($"After Rel1: Mutex={m.State}, P1={p1.State}, P2={p2.State}");
+
+        // Now P2 can enter
+        TrySync(m, p1, p2, Act.Req2);
+        Console.WriteLine($"After Req2: Mutex={m.State}, P1={p1.State}, P2={p2.State}");
+    }
+}
