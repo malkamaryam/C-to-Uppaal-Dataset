@@ -1,0 +1,188 @@
+using System;
+
+public enum Channel
+{
+    PsEntryReq,    // ps_entry_req
+    PsEntryAllow,  // ps_entry_allow
+    PsEntryDeny,   // ps_entry_deny
+    PsCarEnter,    // ps_car_enter
+    PsExitReq,     // ps_exit_req
+    PsExitDone,    // ps_exit_done
+    PsRetry        // ps_retry
+}
+
+public enum ControllerState
+{
+    Idle,          // id80000
+    EntryPending,  // id80001
+    GateOpen,      // id80002
+    ExitPending    // id80003
+}
+
+public enum UserState
+{
+    U_Outside,       // id81000
+    U_EntryPending,  // id81001
+    U_GateOpen,      // id81002
+    U_Inside,        // id81003
+    U_ExitPending,   // id81004
+    U_Denied         // id81005
+}
+
+public sealed class ParkingSlotCounterPaired
+{
+    private const int MaxSlots = 3;
+
+    // Mirrors UPPAAL globals
+    public int FreeSlots { get; private set; } = 3; // int[0,3]
+    public int GateOpen { get; private set; } = 0;  // int[0,1]
+
+    public ControllerState Controller { get; private set; } = ControllerState.Idle;
+    public UserState User { get; private set; } = UserState.U_Outside;
+
+    // Explicit handshake: action occurs ONLY if sender can send AND receiver can receive.
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        // Apply updates atomically (single-threaded)
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // ---------------- Controller (? in UPPAAL) ----------------
+    private bool ControllerCanReceive(ControllerState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (ControllerState.Idle, Channel.PsEntryReq):
+                return true;
+
+            case (ControllerState.EntryPending, Channel.PsEntryAllow):
+                return FreeSlots > 0;
+
+            case (ControllerState.EntryPending, Channel.PsEntryDeny):
+                return FreeSlots == 0;
+
+            case (ControllerState.GateOpen, Channel.PsCarEnter):
+                return GateOpen == 1;
+
+            case (ControllerState.Idle, Channel.PsExitReq):
+                return FreeSlots < MaxSlots;
+
+            case (ControllerState.ExitPending, Channel.PsExitDone):
+                return FreeSlots < MaxSlots;
+
+            case (ControllerState.Idle, Channel.PsRetry):
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    private ControllerState ControllerApplyReceive(ControllerState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (ControllerState.Idle, Channel.PsEntryReq):
+                return ControllerState.EntryPending;
+
+            case (ControllerState.EntryPending, Channel.PsEntryAllow):
+                FreeSlots = Clamp01toMax(FreeSlots - 1);
+                GateOpen = 1;
+                return ControllerState.GateOpen;
+
+            case (ControllerState.EntryPending, Channel.PsEntryDeny):
+                GateOpen = 0;
+                return ControllerState.Idle;
+
+            case (ControllerState.GateOpen, Channel.PsCarEnter):
+                GateOpen = 0;
+                return ControllerState.Idle;
+
+            case (ControllerState.Idle, Channel.PsExitReq):
+                return ControllerState.ExitPending;
+
+            case (ControllerState.ExitPending, Channel.PsExitDone):
+                FreeSlots = Clamp01toMax(FreeSlots + 1);
+                return ControllerState.Idle;
+
+            case (ControllerState.Idle, Channel.PsRetry):
+                return ControllerState.Idle;
+
+            default:
+                throw new InvalidOperationException($"Controller cannot receive {ch} in {s}.");
+        }
+    }
+
+    // ---------------- UserEnv (! in UPPAAL) ----------------
+    private bool UserCanSend(UserState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (UserState.U_Outside, Channel.PsEntryReq):
+                return true;
+
+            case (UserState.U_EntryPending, Channel.PsEntryAllow):
+                return FreeSlots > 0;
+
+            case (UserState.U_EntryPending, Channel.PsEntryDeny):
+                return FreeSlots == 0;
+
+            case (UserState.U_GateOpen, Channel.PsCarEnter):
+                return GateOpen == 1;
+
+            case (UserState.U_Inside, Channel.PsExitReq):
+                return FreeSlots < MaxSlots;
+
+            case (UserState.U_ExitPending, Channel.PsExitDone):
+                return FreeSlots < MaxSlots;
+
+            case (UserState.U_Denied, Channel.PsRetry):
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    private UserState UserApplySend(UserState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (UserState.U_Outside, Channel.PsEntryReq):
+                return UserState.U_EntryPending;
+
+            case (UserState.U_EntryPending, Channel.PsEntryAllow):
+                return UserState.U_GateOpen;
+
+            case (UserState.U_EntryPending, Channel.PsEntryDeny):
+                return UserState.U_Denied;
+
+            case (UserState.U_GateOpen, Channel.PsCarEnter):
+                return UserState.U_Inside;
+
+            case (UserState.U_Inside, Channel.PsExitReq):
+                return UserState.U_ExitPending;
+
+            case (UserState.U_ExitPending, Channel.PsExitDone):
+                return UserState.U_Outside;
+
+            case (UserState.U_Denied, Channel.PsRetry):
+                return UserState.U_Outside;
+
+            default:
+                throw new InvalidOperationException($"User cannot send {ch} in {s}.");
+        }
+    }
+
+    private static int Clamp01toMax(int v)
+    {
+        if (v < 0) return 0;
+        if (v > MaxSlots) return MaxSlots;
+        return v;
+    }
+}

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan wt_fill_cmd, wt_drain_cmd, wt_tick;
+
+/* Discrete water level: 0=EMPTY, 1=MID, 2=FULL */
+int[0,2] level = 1;
+  </declaration>
+	<template>
+		<name x="60" y="30">TankController</name>
+		<location id="id0" x="80" y="150">
+			<name x="42" y="161">Standby</name>
+		</location>
+		<location id="id1" x="76" y="-34">
+			<name x="93" y="-42">Filling</name>
+		</location>
+		<location id="id2" x="560" y="150">
+			<name x="544" y="161">Draining</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id3">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="85" y="59">level&lt;2</label>
+			<label kind="synchronisation" x="85" y="42">wt_fill_cmd?</label>
+		</transition>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="306" y="255">level&gt;0</label>
+			<label kind="synchronisation" x="280" y="238">wt_drain_cmd?</label>
+			<nail x="331" y="238"/>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="42" y="-85">level&lt;2</label>
+			<label kind="synchronisation" x="34" y="-119">wt_tick?</label>
+			<label kind="assignment" x="25" y="-102">level=level+1</label>
+			<nail x="46" y="-64"/>
+			<nail x="106" y="-64"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-85" y="59">level==2</label>
+			<label kind="synchronisation" x="-85" y="42">wt_tick?</label>
+			<nail x="-17" y="51"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="527" y="68">level&gt;0</label>
+			<label kind="synchronisation" x="527" y="85">wt_tick?</label>
+			<label kind="assignment" x="501" y="102">level=level-1</label>
+			<nail x="530" y="120"/>
+			<nail x="590" y="120"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="289" y="110">level==0</label>
+			<label kind="synchronisation" x="289" y="127">wt_tick?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="300">UserEnv</name>
+		<location id="id9" x="80" y="420">
+			<name x="42" y="433">U_Standby</name>
+		</location>
+		<location id="id10" x="255" y="272">
+			<name x="272" y="263">U_Filling</name>
+		</location>
+		<location id="id11" x="560" y="420">
+			<name x="535" y="433">U_Draining</name>
+		</location>
+		<init ref="id9"/>
+		<transition id="id12">
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="161" y="357">level&lt;2</label>
+			<label kind="synchronisation" x="170" y="340">wt_fill_cmd!</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id9"/>
+			<target ref="id11"/>
+			<label kind="guard" x="280" y="535">level&gt;0</label>
+			<label kind="synchronisation" x="255" y="518">wt_drain_cmd!</label>
+			<nail x="306" y="518"/>
+		</transition>
+		<transition id="id14">
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="guard" x="221" y="204">level&lt;2</label>
+			<label kind="synchronisation" x="221" y="221">wt_tick!</label>
+			<nail x="225" y="242"/>
+			<nail x="285" y="242"/>
+		</transition>
+		<transition id="id15">
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="34" y="280">level==2</label>
+			<label kind="synchronisation" x="34" y="297">wt_tick!</label>
+			<nail x="110" y="297"/>
+		</transition>
+		<transition id="id16">
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="guard" x="527" y="348">level&gt;0</label>
+			<label kind="synchronisation" x="527" y="365">wt_tick!</label>
+			<nail x="530" y="390"/>
+			<nail x="590" y="390"/>
+		</transition>
+		<transition id="id17">
+			<source ref="id11"/>
+			<target ref="id9"/>
+			<label kind="guard" x="280" y="399">level==0</label>
+			<label kind="synchronisation" x="280" y="382">wt_tick!</label>
+		</transition>
+	</template>
+	<system>
+system TankController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

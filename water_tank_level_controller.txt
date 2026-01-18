@@ -1,0 +1,134 @@
+using System;
+
+public enum Channel
+{
+    WtFillCmd,   // wt_fill_cmd
+    WtDrainCmd,  // wt_drain_cmd
+    WtTick       // wt_tick
+}
+
+public enum TankControllerState
+{
+    Standby,   // id73000
+    Filling,   // id73001
+    Draining   // id73002
+}
+
+public enum UserEnvState
+{
+    U_Standby,   // id73100
+    U_Filling,   // id73101
+    U_Draining   // id73102
+}
+
+public sealed class WaterTankLevelControllerPaired
+{
+    // Mirrors UPPAAL global (int[0,2])
+    public int Level { get; private set; } = 1;
+
+    public TankControllerState Controller { get; private set; } = TankControllerState.Standby;
+    public UserEnvState User { get; private set; } = UserEnvState.U_Standby;
+
+    // Explicit handshake: happens ONLY if sender can send AND receiver can receive (including guards).
+    public bool TryHandshake(Channel ch)
+    {
+        if (!UserCanSend(User, ch)) return false;
+        if (!ControllerCanReceive(Controller, ch)) return false;
+
+        User = UserApplySend(User, ch);
+        Controller = ControllerApplyReceive(Controller, ch);
+        return true;
+    }
+
+    // ---------------- Controller (? in UPPAAL) ----------------
+    private bool ControllerCanReceive(TankControllerState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (TankControllerState.Standby, Channel.WtFillCmd):
+                return Level < 2;
+
+            case (TankControllerState.Standby, Channel.WtDrainCmd):
+                return Level > 0;
+
+            case (TankControllerState.Filling, Channel.WtTick):
+                return true; // guarded per transition outcome by Level
+
+            case (TankControllerState.Draining, Channel.WtTick):
+                return true; // guarded per transition outcome by Level
+
+            default:
+                return false;
+        }
+    }
+
+    private TankControllerState ControllerApplyReceive(TankControllerState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (TankControllerState.Standby, Channel.WtFillCmd):
+                return TankControllerState.Filling;
+
+            case (TankControllerState.Standby, Channel.WtDrainCmd):
+                return TankControllerState.Draining;
+
+            case (TankControllerState.Filling, Channel.WtTick):
+                if (Level < 2) Level = Clamp(Level + 1, 0, 2);
+                // If after tick we're at FULL, return to Standby (matches XML: tick with guard level==2)
+                return (Level == 2) ? TankControllerState.Standby : TankControllerState.Filling;
+
+            case (TankControllerState.Draining, Channel.WtTick):
+                if (Level > 0) Level = Clamp(Level - 1, 0, 2);
+                // If after tick we're at EMPTY, return to Standby (matches XML: tick with guard level==0)
+                return (Level == 0) ? TankControllerState.Standby : TankControllerState.Draining;
+
+            default:
+                throw new InvalidOperationException($"Controller cannot receive {ch} in {s}.");
+        }
+    }
+
+    // ---------------- UserEnv (! in UPPAAL) ----------------
+    private bool UserCanSend(UserEnvState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (UserEnvState.U_Standby, Channel.WtFillCmd):
+                return Level < 2;
+
+            case (UserEnvState.U_Standby, Channel.WtDrainCmd):
+                return Level > 0;
+
+            case (UserEnvState.U_Filling, Channel.WtTick):
+                return true;
+
+            case (UserEnvState.U_Draining, Channel.WtTick):
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    private UserEnvState UserApplySend(UserEnvState s, Channel ch)
+    {
+        switch (s, ch)
+        {
+            case (UserEnvState.U_Standby, Channel.WtFillCmd):
+                return UserEnvState.U_Filling;
+
+            case (UserEnvState.U_Standby, Channel.WtDrainCmd):
+                return UserEnvState.U_Draining;
+
+            case (UserEnvState.U_Filling, Channel.WtTick):
+                return (Level == 2) ? UserEnvState.U_Standby : UserEnvState.U_Filling;
+
+            case (UserEnvState.U_Draining, Channel.WtTick):
+                return (Level == 0) ? UserEnvState.U_Standby : UserEnvState.U_Draining;
+
+            default:
+                throw new InvalidOperationException($"User cannot send {ch} in {s}.");
+        }
+    }
+
+    private static int Clamp(int v, int lo, int hi) => v < lo ? lo : (v > hi ? hi : v);
+}

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>
+chan ps_entry_req, ps_entry_allow, ps_entry_deny, ps_car_enter, ps_exit_req, ps_exit_done, ps_retry;
+
+const int max_slots = 3;
+int[0,3] free_slots = 3;
+int[0,1] gate_open = 0;
+  </declaration>
+	<template>
+		<name x="60" y="30">SlotController</name>
+		<location id="id0" x="80" y="150">
+			<name x="34" y="144">Idle</name>
+		</location>
+		<location id="id1" x="289" y="51">
+			<name x="246" y="17">EntryPending</name>
+		</location>
+		<location id="id2" x="520" y="150">
+			<name x="535" y="136">GateOpen</name>
+		</location>
+		<location id="id3" x="76" y="391">
+			<name x="91" y="377">ExitPending</name>
+		</location>
+		<init ref="id0"/>
+		<transition id="id4">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="178" y="102">ps_entry_req?</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="399" y="42">free_slots&gt;0</label>
+			<label kind="synchronisation" x="399" y="59">ps_entry_allow?</label>
+			<label kind="assignment" x="399" y="76">free_slots=free_slots-1, gate_open=1</label>
+		</transition>
+		<transition id="id6">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="8" y="59">free_slots==0</label>
+			<label kind="synchronisation" x="8" y="42">ps_entry_deny?</label>
+			<label kind="assignment" x="34" y="25">gate_open=0</label>
+			<nail x="144" y="34"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="255" y="153">gate_open==1</label>
+			<label kind="synchronisation" x="255" y="170">ps_car_enter?</label>
+			<label kind="assignment" x="263" y="187">gate_open=0</label>
+		</transition>
+		<transition id="id8">
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-102" y="246">free_slots&lt;max_slots</label>
+			<label kind="synchronisation" x="-34" y="263">ps_exit_req?</label>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="212" y="263">free_slots&lt;max_slots</label>
+			<label kind="synchronisation" x="212" y="246">ps_exit_done?</label>
+			<label kind="assignment" x="204" y="280">free_slots=free_slots+1</label>
+			<nail x="212" y="263"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-34" y="110">ps_retry?</label>
+			<nail x="34" y="136"/>
+			<nail x="85" y="110"/>
+		</transition>
+	</template>
+	<template>
+		<name x="60" y="300">UserEnv</name>
+		<location id="id11" x="280" y="518">
+			<name x="238" y="527">U_Outside</name>
+		</location>
+		<location id="id12" x="280" y="348">
+			<name x="221" y="314">U_EntryPending</name>
+		</location>
+		<location id="id13" x="518" y="348">
+			<name x="482" y="319">U_GateOpen</name>
+		</location>
+		<location id="id14" x="714" y="348">
+			<name x="682" y="319">U_Inside</name>
+		</location>
+		<location id="id15" x="720" y="520">
+			<name x="663" y="535">U_ExitPending</name>
+		</location>
+		<location id="id16" x="59" y="416">
+			<name x="17" y="425">U_Denied</name>
+		</location>
+		<init ref="id11"/>
+		<transition id="id17">
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="280" y="425">ps_entry_req!</label>
+		</transition>
+		<transition id="id18">
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="guard" x="340" y="365">free_slots&gt;0</label>
+			<label kind="synchronisation" x="331" y="348">ps_entry_allow!</label>
+		</transition>
+		<transition id="id19">
+			<source ref="id12"/>
+			<target ref="id16"/>
+			<label kind="guard" x="68" y="357">free_slots==0</label>
+			<label kind="synchronisation" x="68" y="340">ps_entry_deny!</label>
+		</transition>
+		<transition id="id20">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="guard" x="569" y="365">gate_open==1</label>
+			<label kind="synchronisation" x="561" y="348">ps_car_enter!</label>
+		</transition>
+		<transition id="id21">
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="guard" x="722" y="442">free_slots&lt;max_slots</label>
+			<label kind="synchronisation" x="722" y="459">ps_exit_req!</label>
+		</transition>
+		<transition id="id22">
+			<source ref="id15"/>
+			<target ref="id11"/>
+			<label kind="guard" x="425" y="535">free_slots&lt;max_slots</label>
+			<label kind="synchronisation" x="450" y="518">ps_exit_done!</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id16"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="102" y="467">ps_retry!</label>
+		</transition>
+	</template>
+	<system>
+system SlotController, UserEnv;
+  </system>
+	<queries>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>
